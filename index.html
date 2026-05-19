@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 能力快速诊断 · Intent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600&family=Noto+Sans+SC:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #faf7f2;
+  --bg-card: #ffffff;
+  --bg-soft: #f1ece3;
+  --ink: #1a1814;
+  --ink-soft: #5a554d;
+  --ink-faint: #8b8579;
+  --line: #e8e2d5;
+  --accent: #c5532f;
+  --accent-soft: #f4dccf;
+  --teal: #2d7a6e;
+  --teal-soft: #d4ebe7;
+  --purple: #6a4e9b;
+  --purple-soft: #e3d9f0;
+  --amber: #b88838;
+  --amber-soft: #f4e5c3;
+  --serif: 'Noto Serif SC', Georgia, serif;
+  --sans: 'Noto Sans SC', -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.7;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ───────── Layout ───────── */
+.wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 60px 32px 100px;
+}
+@media (max-width: 640px) {
+  .wrap { padding: 40px 20px 80px; }
+}
+
+/* ───────── Hero ───────── */
+.hero { margin-bottom: 64px; }
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.eyebrow::before, .eyebrow::after {
+  content: '';
+  height: 1px;
+  background: var(--accent);
+  flex: 0 0 24px;
+  opacity: 0.4;
+}
+.eyebrow::after { flex: 1; opacity: 0.15; }
+h1 {
+  font-family: var(--serif);
+  font-size: 42px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  margin-bottom: 20px;
+}
+@media (max-width: 640px) { h1 { font-size: 32px; } }
+.lead {
+  font-size: 17px;
+  color: var(--ink-soft);
+  max-width: 580px;
+  margin-bottom: 32px;
+}
+.meta {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  padding: 20px 24px;
+  background: var(--bg-soft);
+  border-radius: 6px;
+  border-left: 3px solid var(--accent);
+}
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.meta-label {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.meta-value {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* ───────── Section ───────── */
+.section { margin-bottom: 48px; }
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.section-num {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 500;
+}
+.section-title {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 500;
+}
+.section-hint {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+}
+
+/* ───────── Question ───────── */
+.question {
+  margin-bottom: 36px;
+}
+.q-label {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  align-items: flex-start;
+}
+.q-num {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-faint);
+  flex: 0 0 auto;
+  padding-top: 4px;
+}
+.q-text {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.5;
+}
+.q-multi-hint {
+  font-size: 12px;
+  color: var(--ink-faint);
+  font-weight: 400;
+  margin-left: 6px;
+}
+
+/* ───────── Options ───────── */
+.options { display: flex; flex-direction: column; gap: 8px; }
+.option {
+  position: relative;
+  padding: 12px 16px 12px 44px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+.option:hover {
+  border-color: var(--ink-faint);
+  background: var(--bg-soft);
+}
+.option input {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.option.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.option-letter {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-right: 8px;
+  font-weight: 500;
+}
+.option.selected .option-letter { color: var(--accent); }
+
+/* X 选项："都不/没"类，视觉上稍微弱化但选中后清晰 */
+.option[data-v="X"] {
+  border-style: dashed;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+.option[data-v="X"].selected {
+  border-style: solid;
+  background: var(--bg-soft);
+  color: var(--ink);
+  border-color: var(--ink-faint);
+  font-style: normal;
+}
+.option[data-v="X"] .option-letter { color: var(--ink-faint); }
+
+/* ───────── Input / Textarea ───────── */
+input[type="text"], textarea, select {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-family: var(--sans);
+  font-size: 15px;
+  color: var(--ink);
+  line-height: 1.6;
+  transition: border-color 0.15s;
+}
+input[type="text"]:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+textarea { resize: vertical; min-height: 120px; }
+
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+@media (max-width: 640px) {
+  .input-row { grid-template-columns: 1fr; }
+}
+.input-group label {
+  display: block;
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+/* ───────── Submit ───────── */
+.submit-area {
+  margin-top: 56px;
+  text-align: center;
+}
+.submit-note {
+  font-size: 13px;
+  color: var(--ink-faint);
+  margin-bottom: 16px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  background: var(--ink);
+  color: var(--bg);
+  border: none;
+  border-radius: 6px;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+}
+.btn:hover {
+  background: var(--accent);
+  transform: translateY(-1px);
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.btn-secondary:hover {
+  background: var(--bg-soft);
+  border-color: var(--ink-faint);
+}
+
+/* ───────── Progress ───────── */
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: var(--accent);
+  transition: width 0.3s ease;
+  z-index: 100;
+  width: 0;
+}
+
+/* ───────── Result Screen ───────── */
+.result-wrap {
+  display: none;
+  animation: fadeIn 0.5s ease;
+}
+.result-wrap.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-hero {
+  text-align: center;
+  margin-bottom: 48px;
+}
+.result-eyebrow {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+.result-name {
+  font-family: var(--serif);
+  font-size: 36px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.result-level {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 16px;
+  background: var(--ink);
+  color: var(--bg);
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 500;
+}
+.result-level-num {
+  font-family: var(--serif);
+  font-size: 22px;
+}
+.result-tagline {
+  margin-top: 20px;
+  font-size: 16px;
+  color: var(--ink-soft);
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ───────── Radar ───────── */
+.radar-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 32px;
+  margin-bottom: 32px;
+}
+.radar-title {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  text-align: center;
+}
+.radar-sub {
+  font-size: 12px;
+  color: var(--ink-faint);
+  text-align: center;
+  margin-bottom: 16px;
+  font-family: var(--mono);
+}
+.radar-svg { width: 100%; height: auto; max-width: 480px; display: block; margin: 0 auto; }
+
+/* ───────── Category Cards ───────── */
+.cats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+@media (max-width: 640px) { .cats { grid-template-columns: 1fr; } }
+.cat {
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  border-left: 3px solid var(--line);
+}
+.cat-name {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cat-level {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+.cat-note {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.cat.l0 { border-left-color: #d4a574; }
+.cat.l1 { border-left-color: var(--amber); }
+.cat.l2 { border-left-color: var(--teal); }
+.cat.l3 { border-left-color: var(--purple); }
+
+/* ───────── Actions ───────── */
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 40px;
+  padding-top: 40px;
+  border-top: 1px solid var(--line);
+}
+
+/* ───────── MD Preview ───────── */
+.md-preview {
+  background: var(--bg-soft);
+  border-radius: 6px;
+  padding: 24px;
+  margin: 32px 0;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-height: 320px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  border: 1px solid var(--line);
+}
+
+.muted { color: var(--ink-faint); font-size: 13px; }
+
+/* ───────── Footnote ───────── */
+.footer {
+  margin-top: 80px;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  text-align: center;
+  line-height: 1.7;
+}
+.footer span { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+
+<div class="wrap">
+
+<!-- ═══════════════ QUESTIONNAIRE SCREEN ═══════════════ -->
+<div id="questionnaire">
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="eyebrow">Intent · AI 能力诊断 · v1.0</div>
+    <h1>10 分钟，画一张你的 AI 能力地图</h1>
+    <p class="lead">这不是考试。是一份帮你（和团队）了解自己 AI 水平的工具。填完后立刻生成专属画像 + 可视化雷达图 + 可下载的 Markdown 文件。</p>
+    <div class="meta">
+      <div class="meta-item">
+        <div class="meta-label">耗时</div>
+        <div class="meta-value">约 10 分钟</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">题型</div>
+        <div class="meta-value">10 选择 · 1 描述</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">隐私</div>
+        <div class="meta-value">数据只存本地</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Part 0: Basic info -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">00</span>
+      <span class="section-title">先认识一下你</span>
+      <span class="section-hint">1 分钟</span>
+    </div>
+    <div class="input-row">
+      <div class="input-group">
+        <label>你叫什么</label>
+        <input type="text" id="name" placeholder="例：刘怡阳" maxlength="20">
+      </div>
+      <div class="input-group">
+        <label>主要负责的方向</label>
+        <input type="text" id="role" placeholder="例：K-pop 社群运营" maxlength="40">
+      </div>
+    </div>
+    <div class="input-group">
+      <label>编程基础</label>
+      <select id="coding">
+        <option value="">请选择</option>
+        <option value="0">完全没学过</option>
+        <option value="1">学过一点（HTML/CSS/Python 基础）</option>
+        <option value="2">能独立写小项目</option>
+        <option value="3">工程经验丰富</option>
+      </select>
+    </div>
+  </section>
+
+  <!-- Part 1: Multiple choice -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">10 道快速题</span>
+      <span class="section-hint">不会就选"不知道" · 3 分钟</span>
+    </div>
+    <div id="questions"></div>
+  </section>
+
+  <!-- Part 2: Free response -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">一段自由描述</span>
+      <span class="section-hint">200 字左右 · 3 分钟</span>
+    </div>
+    <p style="margin-bottom: 12px; font-size: 14px; color: var(--ink-soft);">从下面三个里任选一个回答，写不出来就跳过 — 跳过不扣分。</p>
+
+    <div class="options" style="margin-bottom: 16px;">
+      <label class="option">
+        <input type="radio" name="topic" value="A">
+        <span><span class="option-letter">A</span>设计一个 AI 工具帮 Intent 解决"新用户进群没人理→流失"，你会怎么做？</span>
+      </label>
+      <label class="option">
+        <input type="radio" name="topic" value="B">
+        <span><span class="option-letter">B</span>描述一次你用 AI 完成了一件事的经历。卡在哪里？怎么解决的？</span>
+      </label>
+      <label class="option">
+        <input type="radio" name="topic" value="C">
+        <span><span class="option-letter">C</span>你最近想用 AI 学/做但还没下手的一件事。为什么没下手？</span>
+      </label>
+    </div>
+
+    <textarea id="freetext" placeholder="200 字左右就够。重点是真实，不是字数。" maxlength="2000"></textarea>
+  </section>
+
+  <!-- Submit -->
+  <div class="submit-area">
+    <p class="submit-note">点击下方按钮，立刻生成你的画像（不会上传到任何服务器）</p>
+    <button class="btn" id="submitBtn">
+      生成我的 AI 能力画像
+      <span>→</span>
+    </button>
+  </div>
+
+</div>
+
+<!-- ═══════════════ RESULT SCREEN ═══════════════ -->
+<div id="result" class="result-wrap">
+
+  <header class="result-hero">
+    <div class="result-eyebrow">AI 能力画像 · v1.0</div>
+    <div class="result-name" id="resultName">—</div>
+    <div class="result-level">
+      <span>整体水平</span>
+      <span class="result-level-num" id="resultLevel">L?</span>
+    </div>
+    <p class="result-tagline" id="resultTagline">—</p>
+  </header>
+
+  <!-- Radar -->
+  <div class="radar-wrap">
+    <div class="radar-title">六维能力雷达</div>
+    <div class="radar-sub">L0 (内圈) → L3 (外圈)</div>
+    <svg class="radar-svg" id="radar" viewBox="0 0 400 400" role="img"></svg>
+  </div>
+
+  <!-- Categories -->
+  <div class="cats" id="cats"></div>
+
+  <!-- Suggestions -->
+  <section class="section" style="margin-top: 32px;">
+    <div class="section-header">
+      <span class="section-num">→</span>
+      <span class="section-title">接下来 30 天最该补的</span>
+    </div>
+    <div id="suggestions"></div>
+  </section>
+
+  <!-- MD Preview -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">⬇</span>
+      <span class="section-title">你的专属 Markdown</span>
+      <span class="section-hint">可下载 · 可粘进任何 AI</span>
+    </div>
+    <p style="margin-bottom: 12px; font-size: 14px; color: var(--ink-soft);">下面这份 .md 文件包含了你的画像 + 给未来 AI 看的"使用说明"。把它贴到 Claude / ChatGPT 对话开头，AI 就知道你的水平、最适合用什么方式教你。</p>
+    <div class="md-preview" id="mdPreview"></div>
+  </section>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button class="btn" id="downloadBtn">
+      <span>⬇</span>
+      下载 Markdown
+    </button>
+    <button class="btn btn-secondary" id="copyBtn">复制全文</button>
+    <button class="btn btn-secondary" id="restartBtn">重新填一次</button>
+  </div>
+
+  <div class="footer">
+    本工具由 <span>Intent / Nina</span> 设计 · 基于 20 模块 AI 能力诊断框架的精简版<br>
+    每月可以来填一次，看自己的成长曲线
+  </div>
+
+</div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// 问题定义
+// ═══════════════════════════════════════════════════════
+const QUESTIONS = [
+  {
+    id: 'q1', type: 'multi',
+    text: '你做过下面哪些事？',
+    options: [
+      { v: 'A', t: '用过 ChatGPT / Claude / 豆包 等聊天产品' },
+      { v: 'B', t: '写过 prompt 让 AI 帮你完成任务' },
+      { v: 'C', t: '用过 Cursor / Claude Code / Copilot 写代码' },
+      { v: 'D', t: '自己调过大模型 API（OpenAI/Anthropic 等）' },
+      { v: 'E', t: '部署过一个能让别人用的 AI 应用' },
+      { v: 'F', t: '训练或微调过模型' },
+      { v: 'X', t: '都没做过' },
+    ]
+  },
+  {
+    id: 'q2', type: 'single',
+    text: '听到 "embedding"（嵌入向量）这个词，你的反应是？',
+    options: [
+      { v: 0, t: '完全没听过' },
+      { v: 1, t: '听过，但说不清是什么' },
+      { v: 2, t: '知道是把文本变成向量，相近向量代表语义相近' },
+      { v: 3, t: '能说出常用的 embedding 模型 + 知道维度对效果的影响' },
+    ]
+  },
+  {
+    id: 'q3', type: 'single',
+    text: '听到 "RAG" 这个词，你的反应是？',
+    options: [
+      { v: 0, t: '没听过' },
+      { v: 1, t: '听过，模糊知道和"检索"有关' },
+      { v: 2, t: '知道是"先查资料，再让模型基于资料回答"' },
+      { v: 3, t: '自己做过 RAG，知道 chunk、向量库、top-k、重排' },
+    ]
+  },
+  {
+    id: 'q4', type: 'single',
+    text: '"Agent" 和普通 chatbot 最大的区别？',
+    options: [
+      { v: 0, t: '没听过 Agent' },
+      { v: 1, t: '不太确定差别' },
+      { v: 2, t: 'Agent 能调用工具去执行任务，chatbot 只能回答' },
+      { v: 3, t: 'Agent 有规划-执行-观察循环，能动态决策 + 有记忆 + 工具系统' },
+    ]
+  },
+  {
+    id: 'q5', type: 'multi',
+    text: '你写 prompt 的时候会注意哪些事？',
+    options: [
+      { v: 'A', t: '想到什么写什么，能跑就行' },
+      { v: 'B', t: '会写清楚角色（"你是一个 X"）' },
+      { v: 'C', t: '会给出具体任务和背景' },
+      { v: 'D', t: '会给几个示例（few-shot）' },
+      { v: 'E', t: '会指定输出格式（如 JSON）' },
+      { v: 'F', t: '会拆步骤让模型一步步想（CoT）' },
+      { v: 'X', t: '没特别注意过 / 没写过 prompt' },
+    ]
+  },
+  {
+    id: 'q6', type: 'single',
+    text: '听到 "temperature"（温度）这个参数？',
+    options: [
+      { v: 0, t: '不知道' },
+      { v: 1, t: '听过，但不知道具体怎么用' },
+      { v: 2, t: '知道是控制输出"随机性"的，越高越发散' },
+      { v: 3, t: '知道不同任务该用不同 temperature，且能讲清楚和 top-p 的区别' },
+    ]
+  },
+  {
+    id: 'q7', type: 'single',
+    text: '如果 AI 给你的答案明显是错的（编造了不存在的事实），你的反应？',
+    options: [
+      { v: 0, t: '没遇到过' },
+      { v: 1, t: '知道这叫"幻觉"，但不知道怎么处理' },
+      { v: 2, t: '知道可以让 AI 联网搜索 / 看资料 / 提供来源来缓解' },
+      { v: 3, t: '能讲清楚幻觉的生成机制 + 多种缓解方案' },
+    ]
+  },
+  {
+    id: 'q8', type: 'single',
+    text: '让 AI 调用一个外部工具（查天气、查日历），你的理解？',
+    options: [
+      { v: 0, t: '不太懂这能怎么做' },
+      { v: 1, t: '大概知道有这种能力（function calling）' },
+      { v: 2, t: '用过 function calling，会写工具的 schema' },
+      { v: 3, t: '做过多工具协作系统，会处理失败/权限/参数错误' },
+    ]
+  },
+  {
+    id: 'q9', type: 'single',
+    text: '做了一个 AI 功能，怎么判断"够好"可以上线？',
+    options: [
+      { v: 0, t: '自己用着感觉还行就行' },
+      { v: 1, t: '找几个同事试用，听反馈' },
+      { v: 2, t: '准备一批测试样本，对比正确率' },
+      { v: 3, t: '有 eval set + 量化指标 + 持续监控 + 用户反馈闭环' },
+    ]
+  },
+  {
+    id: 'q10', type: 'multi',
+    text: '下面这些词，你能讲清楚区别的有几个？',
+    options: [
+      { v: 'A', t: 'context（上下文）' },
+      { v: 'B', t: 'memory（长期记忆）' },
+      { v: 'C', t: 'history（对话历史）' },
+      { v: 'D', t: 'state（状态）' },
+      { v: 'E', t: 'profile（用户画像）' },
+      { v: 'F', t: 'system / user / assistant message 的区别' },
+      { v: 'X', t: '都不是很清楚' },
+    ]
+  },
+];
+
+const CATEGORIES = [
+  { key: 'foundation', name: '🧠 大模型基础', short: '基础', icon: '🧠' },
+  { key: 'api',        name: '🔌 API & Prompt', short: 'API', icon: '🔌' },
+  { key: 'rag',        name: '📚 RAG & 知识', short: 'RAG', icon: '📚' },
+  { key: 'agent',      name: '🤖 Agent 思维', short: 'Agent', icon: '🤖' },
+  { key: 'eval',       name: '📊 评估 & 数据', short: '评估', icon: '📊' },
+  { key: 'product',    name: '🎯 产品 & 拆解', short: '产品', icon: '🎯' },
+];
+
+// ═══════════════════════════════════════════════════════
+// 渲染问卷
+// ═══════════════════════════════════════════════════════
+const state = { answers: {} };
+
+function renderQuestions() {
+  const c = document.getElementById('questions');
+  QUESTIONS.forEach((q, i) => {
+    const qDiv = document.createElement('div');
+    qDiv.className = 'question';
+    qDiv.id = `Q-${q.id}`;
+    const isMulti = q.type === 'multi';
+    qDiv.innerHTML = `
+      <div class="q-label">
+        <span class="q-num">Q${i+1}</span>
+        <span class="q-text">${q.text}${isMulti ? '<span class="q-multi-hint">（可多选）</span>' : ''}</span>
+      </div>
+      <div class="options">
+        ${q.options.map(opt => `
+          <label class="option" data-q="${q.id}" data-v="${opt.v}">
+            <input type="${isMulti ? 'checkbox' : 'radio'}" name="${q.id}" value="${opt.v}">
+            <span><span class="option-letter">${typeof opt.v === 'string' ? opt.v : ['A','B','C','D'][opt.v]}</span>${opt.t}</span>
+          </label>
+        `).join('')}
+      </div>
+    `;
+    c.appendChild(qDiv);
+  });
+
+  // bind change → state
+  c.addEventListener('change', (e) => {
+    if (e.target.tagName !== 'INPUT') return;
+    const qid = e.target.name;
+    const q = QUESTIONS.find(x => x.id === qid);
+    if (q.type === 'single') {
+      state.answers[qid] = parseInt(e.target.value);
+      // highlight selected
+      c.querySelectorAll(`[data-q="${qid}"]`).forEach(o => o.classList.remove('selected'));
+      e.target.closest('.option').classList.add('selected');
+    } else {
+      if (!state.answers[qid]) state.answers[qid] = [];
+
+      // 互斥逻辑：X 选项 vs 其他选项
+      if (e.target.checked) {
+        if (e.target.value === 'X') {
+          // 选了"都不/没"，清空其他
+          state.answers[qid] = ['X'];
+          c.querySelectorAll(`input[name="${qid}"]`).forEach(inp => {
+            if (inp.value !== 'X') {
+              inp.checked = false;
+              inp.closest('.option').classList.remove('selected');
+            }
+          });
+        } else {
+          // 选了其他选项，自动取消 X
+          const xInput = c.querySelector(`input[name="${qid}"][value="X"]`);
+          if (xInput && xInput.checked) {
+            xInput.checked = false;
+            xInput.closest('.option').classList.remove('selected');
+            state.answers[qid] = state.answers[qid].filter(v => v !== 'X');
+          }
+          if (!state.answers[qid].includes(e.target.value)) state.answers[qid].push(e.target.value);
+        }
+        e.target.closest('.option').classList.add('selected');
+      } else {
+        state.answers[qid] = state.answers[qid].filter(v => v !== e.target.value);
+        e.target.closest('.option').classList.remove('selected');
+      }
+    }
+    saveProgress();
+    updateProgress();
+  });
+}
+
+// 自由描述选项也要高亮
+document.addEventListener('change', (e) => {
+  if (e.target.name === 'topic') {
+    document.querySelectorAll('input[name="topic"]').forEach(r => {
+      r.closest('.option').classList.toggle('selected', r.checked);
+    });
+  }
+});
+
+// ═══════════════════════════════════════════════════════
+// 进度 & 本地存储
+// ═══════════════════════════════════════════════════════
+function updateProgress() {
+  const total = QUESTIONS.length + 3; // 10 questions + name + role + coding
+  let filled = 0;
+  if (document.getElementById('name').value.trim()) filled++;
+  if (document.getElementById('role').value.trim()) filled++;
+  if (document.getElementById('coding').value) filled++;
+  QUESTIONS.forEach(q => {
+    const a = state.answers[q.id];
+    if (q.type === 'single' && a !== undefined) filled++;
+    if (q.type === 'multi' && Array.isArray(a) && a.length > 0) filled++;
+  });
+  document.getElementById('progress').style.width = (filled / total * 100) + '%';
+}
+
+function saveProgress() {
+  try {
+    localStorage.setItem('ai_diag_progress', JSON.stringify({
+      name: document.getElementById('name').value,
+      role: document.getElementById('role').value,
+      coding: document.getElementById('coding').value,
+      answers: state.answers,
+      freetext: document.getElementById('freetext').value,
+      topic: document.querySelector('input[name="topic"]:checked')?.value,
+    }));
+  } catch(e) {}
+}
+
+function loadProgress() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('ai_diag_progress') || '{}');
+    if (saved.name) document.getElementById('name').value = saved.name;
+    if (saved.role) document.getElementById('role').value = saved.role;
+    if (saved.coding) document.getElementById('coding').value = saved.coding;
+    if (saved.freetext) document.getElementById('freetext').value = saved.freetext;
+    if (saved.topic) {
+      const t = document.querySelector(`input[name="topic"][value="${saved.topic}"]`);
+      if (t) { t.checked = true; t.closest('.option').classList.add('selected'); }
+    }
+    if (saved.answers) {
+      state.answers = saved.answers;
+      Object.entries(saved.answers).forEach(([qid, val]) => {
+        if (Array.isArray(val)) {
+          val.forEach(v => {
+            const input = document.querySelector(`input[name="${qid}"][value="${v}"]`);
+            if (input) { input.checked = true; input.closest('.option').classList.add('selected'); }
+          });
+        } else {
+          const input = document.querySelector(`input[name="${qid}"][value="${val}"]`);
+          if (input) { input.checked = true; input.closest('.option').classList.add('selected'); }
+        }
+      });
+    }
+    updateProgress();
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════
+// 评分逻辑
+// ═══════════════════════════════════════════════════════
+function compute(answers, codingLevel) {
+  const a = answers;
+
+  // Q1: 经验广度 (0-3)
+  const exp = a.q1 || [];
+  let q1Score = 0;
+  if (exp.includes('X')) q1Score = 0; // 明确表态没做过
+  else {
+    if (exp.includes('A')) q1Score = Math.max(q1Score, 0.5);
+    if (exp.includes('B')) q1Score = Math.max(q1Score, 1);
+    if (exp.includes('C')) q1Score = Math.max(q1Score, 1.5);
+    if (exp.includes('D')) q1Score = Math.max(q1Score, 2);
+    if (exp.includes('E')) q1Score = Math.max(q1Score, 2.5);
+    if (exp.includes('F')) q1Score = Math.max(q1Score, 3);
+  }
+
+  // Q5: prompt 经验 (0-3)
+  const prompt = a.q5 || [];
+  let q5Score;
+  if (prompt.includes('X')) q5Score = 0; // 明确表态没写过 prompt
+  else if (prompt.includes('A') && prompt.length === 1) q5Score = 0.5;
+  else if (prompt.length <= 2) q5Score = 1;
+  else if (prompt.length <= 3) q5Score = 1.5;
+  else if (prompt.length <= 4) q5Score = 2;
+  else q5Score = Math.min(3, 2 + (prompt.length - 4) * 0.5);
+
+  // Q10: 概念区分 (0-3)
+  const concepts = a.q10 || [];
+  const q10Score = concepts.includes('X') ? 0 : Math.min(3, concepts.length * 0.5);
+
+  // 6 大类映射
+  const freetextLength = (a._freetext || '').length;
+  const freetextBoost = freetextLength > 100 ? 0.5 : freetextLength > 30 ? 0.25 : 0;
+
+  const cats = {
+    foundation: avg([num(a.q2), num(a.q6), num(a.q7)]),
+    api:        avg([q5Score, num(a.q6), num(a.q8)]),
+    rag:        num(a.q3),
+    agent:      avg([num(a.q4), q10Score]),
+    eval:       num(a.q9),
+    product:    Math.min(3, avg([q1Score, q5Score]) + freetextBoost) // 产品类：经验广度+prompt+自由描述
+  };
+
+  // 整体 = 六类平均为主，经验和编程基础微调
+  const catAvg = avg(Object.values(cats));
+  const overall = catAvg * 0.85 + q1Score * 0.10 + codingLevel * 0.05;
+
+  return { cats, overall, q1Score, q5Score, q10Score };
+}
+
+function num(v) { return typeof v === 'number' ? v : 0; }
+function avg(arr) {
+  const valid = arr.filter(x => typeof x === 'number');
+  if (!valid.length) return 0;
+  return valid.reduce((a,b) => a+b, 0) / valid.length;
+}
+
+function toLevel(score) {
+  if (score < 0.5) return 'L0';
+  if (score < 1.0) return 'L0.5';
+  if (score < 1.5) return 'L1';
+  if (score < 2.0) return 'L1.5';
+  if (score < 2.5) return 'L2';
+  if (score < 3.0) return 'L2.5';
+  return 'L3';
+}
+
+// ═══════════════════════════════════════════════════════
+// 生成画像内容
+// ═══════════════════════════════════════════════════════
+function genTagline(overall, cats) {
+  const overallL = toLevel(overall);
+  if (overall < 1) return '你现在处于"AI 入门探索"阶段 — 主要把 AI 当工具用，对它的工作原理还很模糊。这没关系，每个人都从这里开始。';
+  if (overall < 1.5) {
+    const strongest = Object.entries(cats).sort((a,b) => b[1]-a[1])[0];
+    return `重度使用者 · 有真实手感但缺底层词汇 — 你的强项在 ${CATEGORIES.find(c => c.key === strongest[0]).name}，但很多基础名词还没建立。`;
+  }
+  if (overall < 2) return '有产品直觉 + 部分工程能力 — 能做简单 demo，下一步该补的是评估、数据闭环这些"上线前"的能力。';
+  if (overall < 2.5) return '能独立设计简单 Agent 应用 — 已经掌握主要概念栈，继续往生产级系统、复杂 Agent 协作走。';
+  return '生产级 AI 开发能力 — 你可以带其他人，也可以承担复杂 Agent 系统的架构设计。';
+}
+
+function genCatNote(key, score) {
+  const L = toLevel(score);
+  const notes = {
+    foundation: {
+      'L0': '基础名词大多没听过，先补 token / embedding / 幻觉这几个',
+      'L0.5': '听过一些词，下一步把它们的定义和场景搞清楚',
+      'L1': '能讲一些概念，但深度待加强',
+      'L1.5': '基础词汇大致掌握，可以开始读简单的技术博客',
+      'L2': '能独立判断模型能力边界',
+      'L2.5': '能解释主流概念的机制',
+      'L3': '能深入到底层，给别人讲清楚原理',
+    },
+    api: {
+      'L0': 'API 调用对你还是黑盒',
+      'L0.5': '用过但没动过参数',
+      'L1': '会写基本 prompt，参数还没探索',
+      'L1.5': '会写 prompt，但不熟参数和高级技巧',
+      'L2': '能熟练用 prompt 工程 + 基础参数',
+      'L2.5': '熟悉主要参数和 function calling',
+      'L3': '能设计复杂的 API 调用流程',
+    },
+    rag: {
+      'L0': 'RAG 完全是空白',
+      'L0.5': '听过但没接触',
+      'L1': '理解 RAG 大概是什么',
+      'L1.5': '理解 RAG 流程，没自己做过',
+      'L2': '能搭一个简单 RAG',
+      'L2.5': '熟悉 chunk / 向量库 / 重排',
+      'L3': '能设计生产级 RAG 系统',
+    },
+    agent: {
+      'L0': 'Agent 的概念还需要建立',
+      'L0.5': '有模糊概念',
+      'L1': '能讲 Agent 和 chatbot 的区别',
+      'L1.5': '理解 Agent 基本运作方式',
+      'L2': '能讲清楚 Plan-Act-Observe 循环',
+      'L2.5': '能设计简单 Agent 流程',
+      'L3': '能设计复杂多 Agent 协作',
+    },
+    eval: {
+      'L0': '还没考虑过怎么评估 AI',
+      'L0.5': '知道要测试，但没方法',
+      'L1': '会找人试用收集反馈',
+      'L1.5': '会用测试样本对比正确率',
+      'L2': '能设计简单 eval set',
+      'L2.5': '熟悉 golden set / LLM-as-judge',
+      'L3': '能建评估闭环和监控体系',
+    },
+    product: {
+      'L0': '还在熟悉 AI 工具基本用法',
+      'L0.5': '能用但还没产品思维',
+      'L1': '能用 AI 完成具体任务',
+      'L1.5': '有一定产品直觉',
+      'L2': '能把模糊需求拆成可执行任务',
+      'L2.5': '能独立设计 AI 产品流程',
+      'L3': '能从用户痛点出发设计完整产品',
+    }
+  };
+  return notes[key][L] || '';
+}
+
+function genSuggestions(cats, overall) {
+  // 找出最低的 3 个 + 在他们当前水平上有用的建议
+  const sorted = Object.entries(cats).sort((a, b) => a[1] - b[1]);
+  const top3 = sorted.slice(0, 3);
+
+  const tips = {
+    foundation: {
+      low: { name: '搞懂 token / embedding / 幻觉这三个最基础词', why: '所有 AI 应用的"基础语法"，不会这些就没法理解任何技术文章', how: '让 Claude 用你工作中的真实场景讲一遍 — 例："如果想找语气相似的用户，embedding 怎么帮你？"，30 分钟搞定。' },
+      mid: { name: '理解 transformer 和 attention 的直觉', why: '大模型为什么能"理解"上下文，这两个概念是核心', how: '不要看论文。让 Claude 用比喻和图解讲 — "请用一个故事告诉我 attention 是怎么决定哪个词更重要的"。' },
+    },
+    api: {
+      low: { name: '亲自调一次 OpenAI 或 Anthropic API', why: '不调一次永远停留在"使用者"层级，调一次 API 你对 AI 的认知会跳一级', how: '在 Claude 帮助下，30 分钟内完成 — 申请 key、配 .env、发出第一个请求、拿到回复。' },
+      mid: { name: '玩一遍 temperature 这个参数', why: '同一个 prompt，0.3 vs 1.0 输出截然不同 — 不试一次永远不会真懂', how: '把你常用的一个 prompt，分别用 temperature 0.3 / 0.7 / 1.0 跑 5 次，对比输出。15 分钟。' },
+    },
+    rag: {
+      low: { name: '搭一个最小 RAG（用你工作中的真实文档）', why: 'RAG 是企业用 AI 最常见的形态，做一次就懂了', how: '让 Claude Code 帮你搭：用 Intent 的 SOP 文档当知识库，能回答 3 个常见问题。1 个晚上。' },
+      mid: { name: '理解 chunk size / overlap / 重排的取舍', why: 'RAG 效果好不好 80% 取决于这些参数', how: '同一份文档，用 200 字 / 500 字 / 1000 字 chunk 各跑一次，对比检索结果。' },
+    },
+    agent: {
+      low: { name: '理解 Agent 的 Plan-Act-Observe 循环', why: 'Agent 之所以是 Agent，就是这个循环 — 不懂这个，你只是在写 chatbot', how: '让 Claude 用你做过的一件复杂任务复盘 — "如果让 Agent 做这件事，它会怎么 plan / act / observe？"' },
+      mid: { name: '设计一个简单的工具调用流程', why: 'Agent 的"动手能力"来自工具调用', how: '想一个你日常会做的事（例：查日历安排会议），设计 1-2 个工具让 Agent 去做。' },
+    },
+    eval: {
+      low: { name: '建一个最小 eval set（10 个样本就够）', why: '"感觉还行"和"真的够好"差 100 倍 — 没有 eval set 你永远在猜', how: '为你正在做的一个 AI 任务，列 10 个测试输入 + 对应的"理想输出"。下次改 prompt 前先跑一遍。' },
+      mid: { name: '尝试 LLM-as-judge', why: '人工评估慢，让 AI 评估 AI 是规模化的关键', how: '让 Claude 帮你写一个 evaluator prompt — 输入两个回答，让它判断哪个更好 + 给理由。' },
+    },
+    product: {
+      low: { name: '把"做一个 AI 助手"这种模糊需求拆细', why: '拆任务的能力，是把 AI 真正用到产品里的关键', how: '挑你想做的一件 AI 项目，把它拆成 10 个 Claude Code 能直接执行的子任务。' },
+      mid: { name: '设计一个完整的 AI 产品 use case', why: '从用户痛点 → 功能 → 评估 → 迭代闭环', how: '为 Intent 一个真实场景写一份 1 页的 AI 产品方案。' },
+    },
+  };
+
+  return top3.map(([key, score]) => {
+    const tier = score < 1 ? 'low' : 'mid';
+    const tip = tips[key][tier] || tips[key]['low'];
+    return { cat: key, catName: CATEGORIES.find(c => c.key === key).name, score, level: toLevel(score), ...tip };
+  });
+}
+
+function genStrengths(cats, answers) {
+  const out = [];
+  Object.entries(cats).forEach(([key, score]) => {
+    if (score >= 1.5) {
+      out.push(`${CATEGORIES.find(c => c.key === key).name}：${genCatNote(key, score)}`);
+    }
+  });
+
+  // 经验积累
+  const exp = answers.q1 || [];
+  if (exp.includes('D')) out.push('🛠 有调用大模型 API 的实际经验');
+  if (exp.includes('C')) out.push('🛠 用过 Coding Agent 类工具');
+  if (exp.includes('E')) out.push('🛠 有部署 AI 应用的经验');
+  if (exp.includes('F')) out.push('🛠 接触过模型训练/微调');
+
+  // 概念
+  const c = (answers.q10 || []).filter(v => v !== 'X');
+  if (c.length >= 4) out.push(`📖 能区分 AI 中 ${c.length} 个核心概念`);
+
+  // prompt 工程
+  const p = (answers.q5 || []).filter(v => v !== 'X');
+  if (p.length >= 4 && !p.includes('A')) {
+    out.push('✍️ Prompt 写作有方法论（角色 / 任务 / 格式 / few-shot 都用过）');
+  }
+
+  // 诚实加分：明确选了"X"系列，是诚实信号
+  const xCount = ['q1','q5','q10'].filter(qid => (answers[qid] || []).includes('X')).length;
+  if (xCount >= 1 && !out.some(s => s.includes('诚实'))) {
+    out.push('✓ 诚实评估自己 — 主动标记了不熟悉的领域，这是最重要的学习起点');
+  }
+
+  if (!out.length) {
+    out.push('诚实评估自己的水平 — 这是最重要的起点');
+  }
+  return out;
+}
+
+// ═══════════════════════════════════════════════════════
+// 雷达图
+// ═══════════════════════════════════════════════════════
+function drawRadar(cats) {
+  const svg = document.getElementById('radar');
+  svg.innerHTML = '';
+  const cx = 200, cy = 200, r = 130;
+  const n = CATEGORIES.length;
+
+  // 背景圆 (L0-L3)
+  for (let i = 1; i <= 3; i++) {
+    const points = [];
+    for (let j = 0; j < n; j++) {
+      const angle = (j / n) * Math.PI * 2 - Math.PI / 2;
+      const rr = r * (i / 3);
+      points.push(`${cx + rr * Math.cos(angle)},${cy + rr * Math.sin(angle)}`);
+    }
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', points.join(' '));
+    poly.setAttribute('fill', 'none');
+    poly.setAttribute('stroke', '#e8e2d5');
+    poly.setAttribute('stroke-width', '1');
+    poly.setAttribute('stroke-dasharray', i === 3 ? '0' : '2 3');
+    svg.appendChild(poly);
+  }
+
+  // 轴线
+  for (let j = 0; j < n; j++) {
+    const angle = (j / n) * Math.PI * 2 - Math.PI / 2;
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', cx);
+    line.setAttribute('y1', cy);
+    line.setAttribute('x2', cx + r * Math.cos(angle));
+    line.setAttribute('y2', cy + r * Math.sin(angle));
+    line.setAttribute('stroke', '#e8e2d5');
+    line.setAttribute('stroke-width', '1');
+    svg.appendChild(line);
+  }
+
+  // 用户数据
+  const userPoints = [];
+  CATEGORIES.forEach((cat, j) => {
+    const angle = (j / n) * Math.PI * 2 - Math.PI / 2;
+    const score = Math.min(3, cats[cat.key] || 0);
+    const rr = r * (score / 3);
+    userPoints.push(`${cx + rr * Math.cos(angle)},${cy + rr * Math.sin(angle)}`);
+  });
+  const userPoly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  userPoly.setAttribute('points', userPoints.join(' '));
+  userPoly.setAttribute('fill', '#c5532f');
+  userPoly.setAttribute('fill-opacity', '0.18');
+  userPoly.setAttribute('stroke', '#c5532f');
+  userPoly.setAttribute('stroke-width', '1.5');
+  svg.appendChild(userPoly);
+
+  // 数据点
+  CATEGORIES.forEach((cat, j) => {
+    const angle = (j / n) * Math.PI * 2 - Math.PI / 2;
+    const score = Math.min(3, cats[cat.key] || 0);
+    const rr = r * (score / 3);
+    const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    dot.setAttribute('cx', cx + rr * Math.cos(angle));
+    dot.setAttribute('cy', cy + rr * Math.sin(angle));
+    dot.setAttribute('r', '3.5');
+    dot.setAttribute('fill', '#c5532f');
+    svg.appendChild(dot);
+  });
+
+  // 标签
+  CATEGORIES.forEach((cat, j) => {
+    const angle = (j / n) * Math.PI * 2 - Math.PI / 2;
+    const labelR = r + 28;
+    const x = cx + labelR * Math.cos(angle);
+    const y = cy + labelR * Math.sin(angle);
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', x);
+    text.setAttribute('y', y);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('dominant-baseline', 'middle');
+    text.setAttribute('fill', '#1a1814');
+    text.setAttribute('font-size', '13');
+    text.setAttribute('font-weight', '500');
+    text.setAttribute('font-family', "'Noto Sans SC', sans-serif");
+    text.textContent = cat.short;
+    svg.appendChild(text);
+
+    const level = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    level.setAttribute('x', x);
+    level.setAttribute('y', y + 16);
+    level.setAttribute('text-anchor', 'middle');
+    level.setAttribute('dominant-baseline', 'middle');
+    level.setAttribute('fill', '#8b8579');
+    level.setAttribute('font-size', '11');
+    level.setAttribute('font-family', "'JetBrains Mono', monospace");
+    level.textContent = toLevel(cats[cat.key] || 0);
+    svg.appendChild(level);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// 生成 Markdown
+// ═══════════════════════════════════════════════════════
+function genMarkdown(data) {
+  const { name, role, cats, overall, suggestions, strengths, tagline, freetext, topic, answers, codingLevel } = data;
+  const date = new Date().toISOString().slice(0, 10);
+  const overallL = toLevel(overall);
+
+  const codingLabel = ['完全没学过', '学过一点', '能独立写小项目', '工程经验丰富'][codingLevel] || '未填';
+
+  let md = `# ${name} 的 AI 能力画像
+
+\`v1.0 · ${date} · 首次诊断\`
+
+---
+
+## 📌 这份文档是什么
+
+这是 ${name} 给未来 AI 看的"自我介绍"。和任何 AI 对话讨论新概念时，把这份文档粘进去，AI 就能知道我现在的水平、已经懂的、盲区、以及最适合我吸收的方式。
+
+---
+
+## ⚡ 30 秒速读
+
+| 维度 | 一句话 |
+|---|---|
+| **整体水平** | **${overallL}** · ${tagline} |
+| **最强方向** | ${getStrongest(cats)} |
+| **最该补的** | ${suggestions.slice(0,2).map(s => s.name.split('（')[0]).join(' / ')} |
+| **角色背景** | ${role || '未填'} · 编程基础：${codingLabel} |
+
+---
+
+## 📊 六维能力雷达
+
+| 类别 | 水平 | 备注 |
+|---|---|---|
+`;
+  CATEGORIES.forEach(cat => {
+    md += `| ${cat.name} | ${toLevel(cats[cat.key])} | ${genCatNote(cat.key, cats[cat.key])} |\n`;
+  });
+
+  md += `\n---\n\n## ✅ 已经掌握的（不用从基础教）\n\n`;
+  strengths.forEach(s => md += `- ${s}\n`);
+
+  md += `\n---\n\n## ❌ 接下来 30 天最该补的 3 个（按优先级排）\n\n`;
+  suggestions.forEach((s, i) => {
+    md += `### ${i+1}. ${s.name}\n`;
+    md += `- **当前水平**：${s.catName} 在 ${s.level}\n`;
+    md += `- **为什么先补这个**：${s.why}\n`;
+    md += `- **怎么补**：${s.how}\n\n`;
+  });
+
+  md += `---\n\n## 🗣 给未来 AI 的"使用说明"\n\n`;
+  md += `当 ${name} 和你（AI）对话时，请按这个方式：\n\n`;
+  md += `### ✅ 这样讲容易吸收\n\n`;
+
+  if (overall < 1) {
+    md += `1. **零基础假设** — 不要假设我懂任何术语\n`;
+    md += `2. **从日常经验切入** — 用我能想象的场景做类比\n`;
+    md += `3. **一次一个概念** — 不要堆砌名词\n`;
+    md += `4. **代码示例要超简短** — 最多 10 行\n\n`;
+  } else if (overall < 2) {
+    md += `1. **问题驱动** — 从一个真实要解决的问题切入\n`;
+    md += `2. **明确给出学名** — 我有直觉但缺词汇，请告诉我"它叫 X"\n`;
+    md += `3. **用我熟悉的场景举例**（${role || 'Intent 工作场景'}）\n`;
+    md += `4. **结构**：① 解决什么问题 → ② 学名 + 一句话定义 → ③ 最小代码 → ④ 坑\n\n`;
+  } else {
+    md += `1. **可以直接讨论高阶概念** — 不需要从基础起步\n`;
+    md += `2. **指出我可能没意识到的盲区** — 比我自己看更准\n`;
+    md += `3. **挑战我的设计选择** — 不要只 yes\n\n`;
+  }
+
+  md += `### ❌ 这样会卡住我\n\n`;
+  if (overall < 1.5) {
+    md += `1. 从数学公式或学术定义起步\n`;
+    md += `2. 假设我懂 embedding / RAG / fine-tuning / transformer\n`;
+  }
+  if (codingLevel < 2) {
+    md += `${overall < 1.5 ? '3' : '1'}. 假设我会配 \`.env\` / API key / 数据库（这些会绊倒我）\n`;
+    md += `${overall < 1.5 ? '4' : '2'}. 假设我熟 AWS / Vercel / 后端框架\n`;
+    md += `${overall < 1.5 ? '5' : '3'}. 假设我记得 Python 语法细节\n`;
+  }
+
+  md += `\n### 我的工作场景（讲新概念时请用这些举例）\n\n`;
+  if (role) md += `- ${role}\n`;
+  md += `- Intent (GroupUltra) — 实时翻译聊天 App\n- 社群运营 / 用户留存 / 多语言场景\n\n`;
+
+  if (freetext && topic) {
+    const topicName = topic === 'A' ? '设计 AI 工具解决用户流失' : topic === 'B' ? '一次真实 AI 使用经历' : '想做但没下手的事';
+    md += `---\n\n## 💭 自由描述（关于：${topicName}）\n\n${freetext}\n\n`;
+  }
+
+  md += `---\n\n## 🔄 下次更新建议\n\n完成下面任一里程碑后，更新这份画像的版本号到 v1.1：\n\n`;
+  suggestions.forEach(s => {
+    md += `- ✅ ${s.name}\n`;
+  });
+
+  md += `\n---\n\n## 📝 版本记录\n\n- **v1.0** · ${date} · 首次诊断（10 题选择 + 自由描述）\n\n### 下次怎么更新\n\n两种方式：\n\n**方式 A · 重新填一次**：3 个月后重新去填问卷，对比新旧版本看自己的成长\n\n**方式 B · 手动加日志**：每周在下面加 2-3 行，记录本周用 AI 做了什么、学了什么新词、卡在哪里\n\n\`\`\`markdown\n### YYYY-MM-DD 周更\n本周用 AI 做了：[1-2 件具体的事]\n学到了什么新概念：[列 1-3 个新词]\n卡在哪里：[一句话]\n\`\`\`\n`;
+
+  return md;
+}
+
+function getStrongest(cats) {
+  const sorted = Object.entries(cats).sort((a,b) => b[1]-a[1]);
+  const top = sorted[0];
+  if (top[1] < 0.5) return '都还在起步阶段，没关系';
+  return `${CATEGORIES.find(c => c.key === top[0]).name}`;
+}
+
+// ═══════════════════════════════════════════════════════
+// 提交 & 渲染结果
+// ═══════════════════════════════════════════════════════
+let currentMD = '';
+let currentName = '';
+
+function submit() {
+  const name = document.getElementById('name').value.trim() || '我';
+  const role = document.getElementById('role').value.trim();
+  const coding = parseInt(document.getElementById('coding').value || '0');
+  const freetext = document.getElementById('freetext').value.trim();
+  const topic = document.querySelector('input[name="topic"]:checked')?.value;
+
+  // 友好提示：未填的题超过一半时提醒
+  const answered = QUESTIONS.filter(q => {
+    const a = state.answers[q.id];
+    return (q.type === 'single' && a !== undefined) ||
+           (q.type === 'multi' && Array.isArray(a) && a.length > 0);
+  }).length;
+
+  if (answered < 5) {
+    if (!confirm(`你只回答了 ${answered}/10 道题。继续生成画像可能不够准确，确定提交吗？`)) {
+      return;
+    }
+  }
+
+  // 算分
+  const answersWithText = { ...state.answers, _freetext: freetext };
+  const result = compute(answersWithText, coding);
+  const { cats, overall } = result;
+
+  // 生成内容
+  const tagline = genTagline(overall, cats);
+  const suggestions = genSuggestions(cats, overall);
+  const strengths = genStrengths(cats, state.answers);
+
+  // 渲染结果
+  document.getElementById('resultName').textContent = name;
+  document.getElementById('resultLevel').textContent = toLevel(overall);
+  document.getElementById('resultTagline').textContent = tagline;
+
+  drawRadar(cats);
+
+  // 类别卡片
+  const catsEl = document.getElementById('cats');
+  catsEl.innerHTML = CATEGORIES.map(cat => {
+    const L = toLevel(cats[cat.key]);
+    const lClass = L.startsWith('L3') ? 'l3' : L.startsWith('L2') ? 'l2' : L.startsWith('L1') ? 'l1' : 'l0';
+    return `
+      <div class="cat ${lClass}">
+        <div class="cat-name">
+          <span>${cat.name}</span>
+          <span class="cat-level">${L}</span>
+        </div>
+        <div class="cat-note">${genCatNote(cat.key, cats[cat.key])}</div>
+      </div>
+    `;
+  }).join('');
+
+  // 建议（标题根据水平动态）
+  const sugTitle = overall < 1 ? '接下来 30 天最该补的 3 个底子' 
+                 : overall < 2 ? '接下来 30 天最该补的'
+                 : overall < 2.5 ? '下一阶段值得啃的 3 个方向'
+                 : '继续进阶可探索的方向';
+  document.querySelectorAll('#result .section-title').forEach(el => {
+    if (el.textContent.includes('接下来')) el.textContent = sugTitle;
+  });
+
+  const sugEl = document.getElementById('suggestions');
+  sugEl.innerHTML = suggestions.map((s, i) => `
+    <div style="margin-bottom: 24px; padding: 20px; background: var(--bg-card); border: 1px solid var(--line); border-radius: 6px; border-left: 3px solid var(--accent);">
+      <div style="font-size: 11px; font-family: var(--mono); color: var(--accent); margin-bottom: 4px;">${i + 1} / 3 · ${s.catName} ${s.level}</div>
+      <div style="font-family: var(--serif); font-size: 18px; font-weight: 500; margin-bottom: 12px;">${s.name}</div>
+      <div style="font-size: 13.5px; color: var(--ink-soft); line-height: 1.7;">
+        <div style="margin-bottom: 6px;"><strong style="color: var(--ink);">为什么先补：</strong>${s.why}</div>
+        <div><strong style="color: var(--ink);">怎么补：</strong>${s.how}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // 生成 MD
+  currentMD = genMarkdown({
+    name, role, cats, overall, suggestions, strengths, tagline,
+    freetext, topic, answers: state.answers, codingLevel: coding
+  });
+  currentName = name;
+  document.getElementById('mdPreview').textContent = currentMD;
+
+  // 切换屏幕
+  document.getElementById('questionnaire').style.display = 'none';
+  document.getElementById('result').classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function downloadMD() {
+  const blob = new Blob([currentMD], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const date = new Date().toISOString().slice(0, 10);
+  a.download = `${currentName}_AI能力画像_${date}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function copyMD() {
+  navigator.clipboard.writeText(currentMD).then(() => {
+    const btn = document.getElementById('copyBtn');
+    const txt = btn.textContent;
+    btn.textContent = '✓ 已复制';
+    setTimeout(() => btn.textContent = txt, 1800);
+  });
+}
+
+function restart() {
+  localStorage.removeItem('ai_diag_progress');
+  location.reload();
+}
+
+// ═══════════════════════════════════════════════════════
+// 初始化
+// ═══════════════════════════════════════════════════════
+renderQuestions();
+loadProgress();
+
+['name','role','coding','freetext'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => { saveProgress(); updateProgress(); });
+});
+document.querySelectorAll('input[name="topic"]').forEach(r => {
+  r.addEventListener('change', saveProgress);
+});
+
+document.getElementById('submitBtn').addEventListener('click', submit);
+document.getElementById('downloadBtn').addEventListener('click', downloadMD);
+document.getElementById('copyBtn').addEventListener('click', copyMD);
+document.getElementById('restartBtn').addEventListener('click', restart);
+</script>
+
+</body>
+</html>
