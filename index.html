@@ -1355,7 +1355,6 @@ function deepQuestionTriggered(q, basicAnswers, codingLevel) {
 function filteredDeepQuestions(basicAnswers, codingLevel) {
   return DEEP_QUESTIONS.filter(q => deepQuestionTriggered(q, basicAnswers, codingLevel));
 }
-}
 
 const CATEGORIES = [
   { key: 'foundation', name: '🧠 大模型基础', short: '基础' },
