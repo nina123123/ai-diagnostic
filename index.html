@@ -705,7 +705,7 @@ textarea { resize: vertical; min-height: 120px; }
       </label>
     </div>
 
-    <textarea id="freetext" placeholder="200 字左右就够。重点是真实，不是字数。" maxlength="2000"></textarea>
+    <textarea id="freetext" placeholder="200 字左右就够。重点是思路，不是字数。" maxlength="2000"></textarea>
   </section>
 
   <!-- Submit -->
@@ -907,17 +907,17 @@ const QUESTIONS = [
     ]
   },
 
-  // ═══ Q4 · Agent 真实经验阶梯（替 v1 判断题）═══
+  // ═══ Q4 · Agent 真实经验阶梯（多选 · 多勾不扣分）═══
   {
-    id: 'q4', type: 'single', cat: 'agent',
-    text: '关于 "AI Agent / 让 AI 调用外部工具" 这件事，你的真实经验是？',
+    id: 'q4', type: 'multi', cat: 'agent',
+    text: '关于 "AI Agent / 让 AI 调用外部工具" 这件事，下面哪些你真的接触过？',
+    hint: '按真实经历勾选，没接触过也没关系 —— 算法会自动取你最高的那档经验',
     options: [
-      { v: 0, t: '没接触过，也没听别人提过' },
-      { v: 1, t: '在 ChatGPT / Claude 里见过 AI 自动联网搜索 / 读文件这种功能' },
-      { v: 2, t: '用过 Coze / Dify / 扣子 等 Agent 搭建平台拖过一个 Agent' },
-      { v: 2.5, t: '在 Cursor / Claude Code 里看 AI 自动调用工具完成任务' },
-      { v: 3, t: '自己写代码给模型接过工具（function calling），处理过失败 / 参数错误' },
-      { v: 'X', t: '不确定怎么描述' },
+      { v: 'A', t: '在 ChatGPT / Claude 里见过 AI 自动联网搜索 / 读文件这种功能', w: 1 },
+      { v: 'B', t: '用过 Coze / Dify / 扣子 等 Agent 搭建平台拖过一个 Agent', w: 2 },
+      { v: 'C', t: '在 Cursor / Claude Code 里看 AI 自动调用工具完成任务', w: 2.5 },
+      { v: 'D', t: '自己写代码给模型接过工具（function calling），处理过失败 / 参数错误', w: 3 },
+      { v: 'X', t: '都没接触过 / 不确定怎么描述', w: 0 },
     ]
   },
 
@@ -933,7 +933,7 @@ const QUESTIONS = [
       { v: 'D', t: '给了示例（few-shot）', w: 2 },
       { v: 'E', t: '让 AI 输出结构化格式（JSON / 表格等）', w: 2.5 },
       { v: 'F', t: '给了反面案例（"不要这样"）', w: 2.5 },
-      { v: 'G', t: '让 AI 一步步思考（CoT / 思维链）', w: 3 },
+      { v: 'G', t: '人工手动干预 AI 的思维链', w: 3 },
       { v: 'X', t: '都没尝试过 / 没写过 prompt', w: 0 },
     ]
   },
@@ -992,17 +992,21 @@ const QUESTIONS = [
     ]
   },
 
-  // ═══ Q10 · 概念辨析（v1 原题，密度高）═══
+  // ═══ Q10 · 概念辨析（扩到 10 词，覆盖大模型核心术语）═══
   {
     id: 'q10', type: 'multi', cat: 'agent',
     text: '下面这些词，你能讲清楚区别的有几个？',
     options: [
       { v: 'A', t: 'context（上下文）' },
       { v: 'B', t: 'memory（长期记忆）' },
-      { v: 'C', t: 'history（对话历史）' },
-      { v: 'D', t: 'state（状态）' },
-      { v: 'E', t: 'profile（用户画像）' },
-      { v: 'F', t: 'system / user / assistant message 的区别' },
+      { v: 'C', t: 'system / user / assistant message（消息角色）' },
+      { v: 'D', t: 'tool calling（工具调用）' },
+      { v: 'E', t: 'prompt（提示词）' },
+      { v: 'F', t: 'token / context window（词元 / 上下文窗口）' },
+      { v: 'G', t: 'retrieval / RAG（检索增强）' },
+      { v: 'H', t: 'embedding（嵌入向量）' },
+      { v: 'I', t: 'inference（推理 / 模型推断）' },
+      { v: 'J', t: 'evaluation（评估）' },
       { v: 'X', t: '都不是很清楚' },
     ]
   },
