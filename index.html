@@ -875,7 +875,7 @@ const QUESTIONS = [
     options: [
       { v: 'A', t: '用过 ChatGPT / Claude / 豆包 等聊天产品', w: 0.5 },
       { v: 'B', t: '写过 prompt 让 AI 帮你完成任务', w: 1 },
-      { v: 'C', t: '用过 Cursor / Claude Code / Copilot 写代码', w: 1.5 },
+      { v: 'C', t: '用过 Cursor / Windsurf / TREA / Claude Code / Codex 等 AI 编程工具', w: 1.5 },
       { v: 'D', t: '自己调过大模型 API（OpenAI / Anthropic 等）', w: 2 },
       { v: 'E', t: '部署过一个能让别人用的 AI 应用', w: 2.5 },
       { v: 'F', t: '训练或微调过模型', w: 3 },
@@ -931,7 +931,7 @@ const QUESTIONS = [
       { v: 'B', t: '描述具体任务', w: 1 },
       { v: 'C', t: '描述背景信息', w: 1.5 },
       { v: 'D', t: '给了示例（few-shot）', w: 2 },
-      { v: 'E', t: '让 AI 输出结构化格式（JSON / 表格等）', w: 2.5 },
+      { v: 'E', t: '让 AI 输出结构化格式（JSON / YAML 等）', w: 2.5 },
       { v: 'F', t: '给了反面案例（"不要这样"）', w: 2.5 },
       { v: 'G', t: '人工手动干预 AI 的思维链', w: 3 },
       { v: 'X', t: '都没尝试过 / 没写过 prompt', w: 0 },
@@ -1101,7 +1101,7 @@ const DEEP_QUESTIONS = [
     cat: 'agent',
     type: 'multi',
     trigger: { q1: ['C'] },
-    text: '你用 Cursor / Claude Code / Copilot 时，下面这些经历过哪些？',
+    text: '你用 Cursor / Windsurf / Claude Code / Codex 等 AI 编程工具时，下面这些经历过哪些？',
     options: [
       { v: 'A', t: '我用过 GitHub Copilot 做代码补全', w: 1 },
       { v: 'B', t: '我用过 Cursor / Windsurf / TREA 等 AI IDE', w: 1 },
