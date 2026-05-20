@@ -633,7 +633,7 @@ textarea { resize: vertical; min-height: 120px; }
       </div>
       <div class="meta-item">
         <div class="meta-label">题型</div>
-        <div class="meta-value">13 必答 + 30 选答</div>
+        <div class="meta-value">13 必答 + 自适应深度题</div>
       </div>
       <div class="meta-item">
         <div class="meta-label">用途</div>
@@ -805,7 +805,7 @@ textarea { resize: vertical; min-height: 120px; }
 <div id="result" class="result-wrap">
 
   <header class="result-hero">
-    <div class="result-eyebrow">AI 能力画像 · v1.0</div>
+    <div class="result-eyebrow">AI 能力画像 · v2.0</div>
     <div class="result-name" id="resultName">—</div>
     <div class="result-level">
       <span>整体水平</span>
@@ -915,7 +915,7 @@ const QUESTIONS = [
     options: [
       { v: 'A', t: '在 ChatGPT / Claude 里见过 AI 自动联网搜索 / 读文件这种功能', w: 1 },
       { v: 'B', t: '用过 Coze / Dify / 扣子 等 Agent 搭建平台拖过一个 Agent', w: 2 },
-      { v: 'C', t: '在 Cursor / Claude Code 里看 AI 自动调用工具完成任务', w: 2.5 },
+      { v: 'C', t: '在 Cursor / Claude Code 等 AI 编程工具里看 AI 自动调用工具完成任务', w: 2.5 },
       { v: 'D', t: '自己写代码给模型接过工具（function calling），处理过失败 / 参数错误', w: 3 },
       { v: 'X', t: '都没接触过 / 不确定怎么描述', w: 0 },
     ]
@@ -1032,7 +1032,7 @@ const QUESTIONS = [
     options: [
       { v: 'A', t: '把一个模糊需求拆成具体可执行的步骤', w: 1.5 },
       { v: 'B', t: '写过 / 看过 PRD（产品需求文档）', w: 2 },
-      { v: 'C', t: '用 Cursor / Claude Code 这类工具让 AI 帮你做完整项目', w: 2 },
+      { v: 'C', t: '用 Cursor / Claude Code 等 AI 编程工具让 AI 帮你做完整项目', w: 2 },
       { v: 'D', t: '上线过一个产品 / 功能（任何规模）', w: 2.5 },
       { v: 'E', t: '做过数据漏斗分析 / 用户流失分析', w: 2.5 },
       { v: 'F', t: '给产品做过用户访谈 / 用户调研', w: 1.5 },
@@ -1286,7 +1286,7 @@ const DEEP_QUESTIONS = [
     cat: 'agent',
     type: 'multi',
     trigger: { q4: ['C'] },
-    text: '你用 Cursor / Claude Code 时，下面这些经历过哪些？',
+    text: '你用 Cursor / Claude Code 等 AI 编程工具时，下面这些经历过哪些？',
     options: [
       { v: 'A', t: '我每天 / 每周用这类工具至少几次', w: 1.5 },
       { v: 'B', t: '我把 AI 的工具调用打断 / 中止过', w: 1.5 },
@@ -1828,10 +1828,10 @@ const DEEP_QUESTIONS = [
     cat: 'product',
     type: 'multi',
     trigger: { q12: ['C'] },
-    text: '你用 Cursor / Claude Code 做项目时，下面这些经历过哪些？',
+    text: '你用 Cursor / Claude Code 等 AI 编程工具做项目时，下面这些经历过哪些？',
     options: [
       { v: 'A', t: '我把项目 readme / 规范文件给 AI 看过', w: 2 },
-      { v: 'B', t: '我用 Cursor / Claude Code 完成过一个完整 feature', w: 2 },
+      { v: 'B', t: '我用 Cursor / Claude Code 等 AI 编程工具完成过一个完整 feature', w: 2 },
       { v: 'C', t: '我跟 AI 来回 5+ 轮才把一个功能调通', w: 2 },
       { v: 'D', t: '我让 AI 帮我写过 5 个文件以上的代码', w: 2.5 },
       { v: 'E', t: '我把项目拆成 "AI 能一次给完" 的小任务', w: 2.5 },
@@ -2012,7 +2012,7 @@ const state = { answers: {}, deepAnswers: {} };
 function renderQuestionList(questions, containerId, stateKey, prefix) {
   const c = document.getElementById(containerId);
   c.innerHTML = ''; // 清空（防止重复渲染）
-  const letters = ['A','B','C','D','E','F','G','H'];
+  const letters = ['A','B','C','D','E','F','G','H','I','J','K','L'];
 
   questions.forEach((q, i) => {
     const qDiv = document.createElement('div');
@@ -2477,7 +2477,7 @@ function genStrengths(cats, answers) {
   const q1 = answers.q1 || []; // API 经验广度（多选）
   if (q1.includes('D')) out.push('🛠 自己动手调过 AI API');
   if (q1.includes('E')) out.push('🛠 部署过让别人能用的 AI 应用');
-  if (q1.includes('C')) out.push('💻 用过 Cursor / Claude Code 类工具');
+  if (q1.includes('C')) out.push('💻 用过 Cursor / Claude Code 等 AI 编程工具');
 
   const q5 = answers.q5 || []; // Prompt 实操经历（多选）
   const q5real = q5.filter(v => v !== 'X');
@@ -2620,7 +2620,7 @@ function genMarkdown(data) {
   const deepCount = deepAnswers ? Object.keys(deepAnswers).filter(k => deepAnswers[k] !== undefined && deepAnswers[k] !== null).length : 0;
 
   const codingLabel = ['完全没学过', '学过一点', '能独立写小项目', '工程经验丰富'][codingLevel] || '未填';
-  const versionTag = preciseMode ? `v1.0-精确版 · ${date} · 完成深度诊断（${deepCount} 题）` : `v1.0 · ${date} · 首次诊断（基础 13 题）`;
+  const versionTag = preciseMode ? `v2.0-精确版 · ${date} · 完成深度诊断（${deepCount} 题）` : `v2.0 · ${date} · 首次诊断（基础 13 题）`;
 
   let md = `# ${name} 的 AI 能力画像
 
