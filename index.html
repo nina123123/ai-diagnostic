@@ -2163,7 +2163,7 @@ function goDeepQuestions() {
   document.getElementById('transition').style.display = 'none';
   document.getElementById('deepQuestionnaire').style.display = 'block';
   renderDeepQuestions();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // 不强制滚到顶 — 让用户自然停留在原位置
 }
 
 function submitDeep() {
