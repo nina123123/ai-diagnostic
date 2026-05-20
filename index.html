@@ -1057,323 +1057,360 @@ const QUESTIONS = [
 
 const DEEP_QUESTIONS = [
   // ═════════════════════════════════════════════════════════════
-  // BASELINE · 无 trigger 的锚定题（每个人都看到）
-  // ═════════════════════════════════════════════════════════════
-
-  // ───── 🧠 大模型基础 ─────
-  {
-    id: 'd_base_hallucination', cat: 'foundation', type: 'single',
-    text: '下面这段对话里，AI 做错了什么？',
-    code: '用户：2025 年诺贝尔物理学奖给了谁？\nAI：2025 年诺贝尔物理学奖授予了张三和李四，\n     因为他们在量子纠缠领域的突破性工作。',
-    options: [
-      { v: 0, t: '把对的答案讲错了' },
-      { v: 1, t: '训练数据没更新到 2025' },
-      { v: 2, t: '这是典型的"幻觉" — 它在编一个看似合理的答案' },
-      { v: 3, t: '没调用搜索工具 — 这类问题应该外接 web search' },
-      { v: 'X', t: '不确定' },
-    ]
-  },
-
-  // ───── 🔌 API & Prompt ─────
-  {
-    id: 'd_base_prompt_review', cat: 'api', type: 'single',
-    text: '下面这段 prompt 最大的问题是？',
-    code: '请帮我写一个总结，要求：\n1. 简洁\n2. 突出重点\n3. 让读者一看就懂\n4. 保留原意\n5. 风格专业\n...（共 20 条要求）',
-    options: [
-      { v: 1, t: '要求太多了，应该精简' },
-      { v: 2, t: '没给"简洁/重点/专业"的具体定义' },
-      { v: 2, t: '缺少 few-shot 示例' },
-      { v: 3, t: '多条模糊指令互相冲突，AI 没法都满足' },
-      { v: 'X', t: '看不出问题' },
-    ]
-  },
-
-  // ───── 🛠 Agent ─────
-  {
-    id: 'd_base_agent_def', cat: 'agent', type: 'single',
-    text: '"AI Agent" 之所以是 Agent，最核心的特征是？',
-    options: [
-      { v: 0, t: '能跟你聊天' },
-      { v: 1, t: '能调用工具完成任务' },
-      { v: 2, t: '能自己规划步骤 + 调工具 + 看结果 + 决定下一步' },
-      { v: 3, t: '能在动态环境里 plan → act → observe 循环，且失败能自纠错' },
-      { v: 'X', t: '说不上来' },
-    ]
-  },
-
-  // ───── 🎯 产品 ─────
-  {
-    id: 'd_base_launch', cat: 'product', type: 'single',
-    text: '做了一个 AI 功能给用户用。怎么判断"够好"可以上线？',
-    options: [
-      { v: 0, t: '自己用着感觉还行就行' },
-      { v: 1, t: '找几个同事试用，听反馈' },
-      { v: 2, t: '准备一批典型测试 case，对比通过率' },
-      { v: 3, t: '有 eval set + 量化指标 + 真实用户灰度 + 失败案例归类闭环' },
-      { v: 'X', t: '没思路' },
-    ]
-  },
-
-  // ═════════════════════════════════════════════════════════════
-  // Q10-TRIGGERED · 你在 Q10 勾了哪个概念，对应那道才出现
-  // 用来 verify "听过" vs "真懂"
+  // BASELINE · 不论基础题答了什么，都问的"行为/习惯"问题
   // ═════════════════════════════════════════════════════════════
 
   {
-    id: 'd_q10_context', cat: 'foundation', type: 'single',
+    id: 'd_base_usage', cat: 'foundation', type: 'multi',
+    text: '最近一周你主要用 AI 做什么？（勾真做过的）',
+    hint: '勾几个都行，没勾的就是没怎么用',
+    options: [
+      { v: 'A', t: '问问题 / 找信息', w: 0.5 },
+      { v: 'B', t: '让 AI 帮我写邮件 / 文档 / 文案', w: 1 },
+      { v: 'C', t: '让 AI 帮我做翻译 / 润色', w: 1 },
+      { v: 'D', t: '用 AI 做调研 / 分析报告', w: 1.5 },
+      { v: 'E', t: '让 AI 帮我拆任务 / 出方案', w: 2 },
+      { v: 'F', t: '让 AI 帮我做技术工作（代码 / 数据 / 产品文档）', w: 2.5 },
+      { v: 'G', t: '让 AI 帮我做创作 / 设计 / 营销内容', w: 1.5 },
+      { v: 'H', t: '把多步骤工作流交给 AI 协作完成', w: 3 },
+      { v: 'X', t: '这周基本没用 AI', w: 0 },
+    ]
+  },
+  {
+    id: 'd_base_error_reaction', cat: 'foundation', type: 'multi',
+    text: 'AI 给出明显错的回答时，你通常会做哪些？',
+    hint: '不用都做过 — 勾你最近真这样反应过的',
+    options: [
+      { v: 'A', t: '直接放弃这个对话，换个方法', w: 0.5 },
+      { v: 'B', t: '重新问一遍，希望它纠正', w: 1 },
+      { v: 'C', t: '让它解释为什么这样答', w: 1.5 },
+      { v: 'D', t: '改 prompt 给更多上下文 / 背景', w: 2 },
+      { v: 'E', t: '把问题拆成几个小问题分别问', w: 2 },
+      { v: 'F', t: '切到另一个模型对比', w: 2 },
+      { v: 'G', t: '告诉它具体哪里错，让它重做', w: 2.5 },
+      { v: 'H', t: '检查它是否需要查资料 / 联网', w: 2.5 },
+      { v: 'X', t: '还没真遇到 AI 出错过', w: 0 },
+    ]
+  },
+  {
+    id: 'd_base_prompt_habit', cat: 'api', type: 'multi',
+    text: '"写 prompt 这件事"，下面哪些是你的真实习惯？',
+    options: [
+      { v: 'A', t: '想到啥写啥，能跑就行', w: 0.5 },
+      { v: 'B', t: '发之前会在心里默念一遍', w: 1 },
+      { v: 'C', t: '一个 prompt 我会改 2-3 版才发', w: 1.5 },
+      { v: 'D', t: '会先想清楚"让 AI 扮演什么角色"再写', w: 2 },
+      { v: 'E', t: '会准备示例 / 反例（few-shot）', w: 2.5 },
+      { v: 'F', t: '会把任务拆成多步骤的 prompt 链', w: 2.5 },
+      { v: 'G', t: '把"好用的 prompt"当文档维护，迭代很多版', w: 3 },
+      { v: 'X', t: '没怎么自己设计过 prompt', w: 0 },
+    ]
+  },
+  {
+    id: 'd_base_friction', cat: 'product', type: 'multi',
+    text: '跟 AI 协作时，最让你卡壳 / 难受的是哪些？',
+    hint: '没有"对"的答案 — 勾你最近真有感的',
+    options: [
+      { v: 'A', t: 'AI 太啰嗦 / 答非所问', w: 0.5 },
+      { v: 'B', t: 'AI 不懂我的业务背景，每次都要重新解释', w: 1.5 },
+      { v: 'C', t: 'AI 在编瞎话，但我没法判断它对错', w: 1.5 },
+      { v: 'D', t: '不知道怎么把模糊需求拆给 AI', w: 2 },
+      { v: 'E', t: 'AI 调工具 / 读文件 / 搜索时经常掉链子', w: 2 },
+      { v: 'F', t: 'AI 写的代码 / 输出我自己不会验证对错', w: 1.5 },
+      { v: 'G', t: '想做的事我知道，但不知道怎么落地成 AI 系统', w: 2.5 },
+      { v: 'H', t: '现在用着挺好，没什么大卡点', w: 1 },
+      { v: 'X', t: '还没真用 AI 干过事', w: 0 },
+    ]
+  },
+
+  // ═════════════════════════════════════════════════════════════
+  // Q10-TRIGGERED · 你勾了哪个概念，对应那道才出现
+  // 都是"聊经历"型 — 不测定义，问你跟这个概念真打过什么交道
+  // ═════════════════════════════════════════════════════════════
+
+  {
+    id: 'd_q10_context', cat: 'foundation', type: 'multi',
     trigger: { q10: ['A'] },
-    text: '你在 Q10 勾了 "context"。context 和 chat history 的本质区别是？',
+    text: '你在 Q10 勾了 "context"。跟 context 这件事，你接触过下面哪些？',
     options: [
-      { v: 0, t: '没区别，是同一个东西' },
-      { v: 1, t: 'context 是当前能看到的内容，history 是过去的对话记录' },
-      { v: 2, t: 'context = 模型这次推理时能"看见"的完整输入（system prompt / RAG 内容 / 工具结果 / 历史摘要全都算），history 只是其中一部分' },
-      { v: 3, t: '上面 + 知道 history 通常被截断或摘要进 context，且整体受 context window 大小限制' },
-      { v: 'X', t: '说不上来' },
+      { v: 'A', t: '听别人 / 看文章讲过 context 是干嘛的', w: 0.5 },
+      { v: 'B', t: '跟 AI 聊到一半发现它"忘了"前面说过的事', w: 1 },
+      { v: 'C', t: '注意过模型的 context window 大小（如 128K）', w: 1.5 },
+      { v: 'D', t: '写 prompt 时主动把"背景信息"和"任务"分开放', w: 2 },
+      { v: 'E', t: '处理过 context 超长导致出错的情况', w: 2.5 },
+      { v: 'F', t: '用过 summary / RAG / 历史摘要 管理 context', w: 3 },
+      { v: 'X', t: '没那么懂，是听说过', w: 0 },
     ]
   },
   {
-    id: 'd_q10_memory', cat: 'foundation', type: 'single',
+    id: 'd_q10_memory', cat: 'foundation', type: 'multi',
     trigger: { q10: ['B'] },
-    text: '你在 Q10 勾了 "memory"。AI 的 long-term memory 和 context 的关键区别？',
+    text: '你在 Q10 勾了 "memory"。跟 AI 的 memory 这件事你的接触？',
     options: [
-      { v: 0, t: '没区别' },
-      { v: 1, t: 'memory 能存更多东西，context 容量小' },
-      { v: 2, t: 'context 是单次推理的输入（每次清空）；memory 是跨会话持久化（数据库/向量库），按需取回再塞进 context' },
-      { v: 3, t: '上面 + 知道 memory 的实现方式（向量检索 / 摘要 / 知识图谱），以及什么该进 memory（用户偏好 / 历史决策）vs 不该进（一次性信息）' },
-      { v: 'X', t: '说不上来' },
+      { v: 'A', t: 'ChatGPT / Claude 帮我记住过一些偏好', w: 0.5 },
+      { v: 'B', t: '听别人讲过 memory 和 context 不一样', w: 1 },
+      { v: 'C', t: '自己存过历史会话再喂回给 AI', w: 1.5 },
+      { v: 'D', t: '看过 / 用过向量库存历史信息的方案', w: 2 },
+      { v: 'E', t: '想过"什么该进 memory 什么不该"这个问题', w: 2.5 },
+      { v: 'F', t: '实际给产品 / Agent 设计过 memory 模块', w: 3 },
+      { v: 'X', t: '我把 memory 当 context 同义词在用', w: 0 },
     ]
   },
   {
-    id: 'd_q10_token', cat: 'foundation', type: 'single',
+    id: 'd_q10_token', cat: 'foundation', type: 'multi',
     trigger: { q10: ['F'] },
-    text: '你在 Q10 勾了 "token / context window"。"128K context window" 意味着什么？',
+    text: '你在 Q10 勾了 "token / context window"。跟这两个词你接触过哪些？',
     options: [
-      { v: 0, t: '能聊 128000 次' },
-      { v: 1, t: '能记住 128000 个字' },
-      { v: 2, t: '单次推理的输入 + 输出加起来不能超过 128000 个 token（token≠字，英文约 0.75 词/token，中文约 1.5 字/token）' },
-      { v: 3, t: '上面 + 知道超长 context 有 "lost in the middle"（中间内容易被忽略）和成本爆炸问题' },
-      { v: 'X', t: '说不上来' },
+      { v: 'A', t: '看过 ChatGPT / Claude 提示"超过限制了"', w: 1 },
+      { v: 'B', t: '知道不同模型 context window 大小不一样', w: 1.5 },
+      { v: 'C', t: '看过 / 关心过 token 的成本（贵 vs 便宜模型）', w: 2 },
+      { v: 'D', t: '处理过"内容太长，要截断 / 摘要"的情况', w: 2.5 },
+      { v: 'E', t: '听说过 "lost in the middle"（长 context 中间被忽略）', w: 3 },
+      { v: 'X', t: '大概知道是长度限制，没深究', w: 0 },
     ]
   },
   {
-    id: 'd_q10_embedding', cat: 'foundation', type: 'single',
+    id: 'd_q10_embedding', cat: 'foundation', type: 'multi',
     trigger: { q10: ['H'] },
-    text: '你在 Q10 勾了 "embedding"。 embedding 把"猫"和"狗"映射成向量后，下面哪个离它们最近？',
+    text: '你在 Q10 勾了 "embedding"。跟 embedding 你做过哪些？',
     options: [
-      { v: 0, t: '"沙发"，因为猫狗常坐沙发' },
-      { v: 1, t: '"动物"，更抽象的上位词' },
-      { v: 2, t: '看模型怎么训的 — 训练语料决定语义距离，没有标准答案' },
-      { v: 3, t: '上面 + 知道 embedding 的"相似"是语义/分布相似，不是分类层级；同义/反义经常都很近（都跟"猫"经常共现）' },
-      { v: 'X', t: '说不上来' },
+      { v: 'A', t: '听别人讲过 embedding 是把文字变向量', w: 0.5 },
+      { v: 'B', t: '在 Cursor / Claude Code 里看 AI 用过向量库', w: 1 },
+      { v: 'C', t: '自己调过 embedding API，看过输出长啥样', w: 1.5 },
+      { v: 'D', t: '在 RAG 系统里挑过 embedding 模型', w: 2 },
+      { v: 'E', t: '对比过两个 embedding 在自己数据上的效果', w: 3 },
+      { v: 'X', t: '大概知道是干啥的，没真接触过', w: 0 },
     ]
   },
   {
-    id: 'd_q10_inference', cat: 'foundation', type: 'single',
+    id: 'd_q10_inference', cat: 'foundation', type: 'multi',
     trigger: { q10: ['I'] },
-    text: '你在 Q10 勾了 "inference"。temperature、top-p、top-k 这三个推理参数的关系？',
+    text: '你在 Q10 勾了 "inference"。跟 inference 这个概念你的实际接触？',
     options: [
-      { v: 0, t: '都是控制 AI "脑回路" 的，差不多' },
-      { v: 1, t: 'temperature 控随机性，另外两个不熟' },
-      { v: 2, t: 'temperature 缩放概率分布（高→平，低→尖）；top-k 只从前 k 个候选采样；top-p 从累计概率达 p 的候选采样。三者可叠加' },
-      { v: 3, t: '上面 + 知道生产环境通常只调一个（避免互相影响），且 temperature=0 也不等于绝对确定（batch/seed 仍有微差）' },
-      { v: 'X', t: '说不上来' },
+      { v: 'A', t: '知道是 AI "出答案"的那个过程', w: 0.5 },
+      { v: 'B', t: '调过 temperature 看输出变化', w: 1.5 },
+      { v: 'C', t: '读过 / 听过关于"模型为什么有时慢"的讨论', w: 1.5 },
+      { v: 'D', t: '注意过 batch 调用时同 prompt 输出会有微差', w: 2 },
+      { v: 'E', t: '关心过 inference 成本 / 延迟 vs 模型大小取舍', w: 2.5 },
+      { v: 'F', t: '部署 / 优化过模型 inference', w: 3 },
+      { v: 'X', t: '我就当它是"AI 说话"，没深究过', w: 0 },
     ]
   },
   {
-    id: 'd_q10_msg_roles', cat: 'api', type: 'single',
+    id: 'd_q10_msg_roles', cat: 'api', type: 'multi',
     trigger: { q10: ['C'] },
-    text: '你在 Q10 勾了 "system / user / assistant message"。为什么要分这三种 role？',
+    text: '你在 Q10 勾了 "system / user / assistant message"。跟这三种 role 你的实际接触？',
     options: [
-      { v: 0, t: '没什么区别，全写成 user 也行' },
-      { v: 1, t: 'system 给指令，user 是用户说的话' },
-      { v: 2, t: 'system 设定身份/规则（权重高），user 是输入，assistant 是 AI 上一轮回复 — 模型训练时就按 role 区分对待' },
-      { v: 3, t: '上面 + 知道 system 的安全性比 user 高（用来防 prompt injection），assistant message 也可被用来塞 few-shot 示例' },
-      { v: 'X', t: '说不上来' },
+      { v: 'A', t: '看过 API 文档里有 "role" 字段', w: 0.5 },
+      { v: 'B', t: '在 Playground / API 工具里改过 system prompt', w: 1.5 },
+      { v: 'C', t: '在 prompt 里明显区分"我说的"和"AI 扮演的角色"', w: 2 },
+      { v: 'D', t: '见过 / 写过 few-shot 用 assistant role 装示例', w: 2.5 },
+      { v: 'E', t: '因为安全 / 防注入 调过 system vs user 的边界', w: 3 },
+      { v: 'X', t: '我都当成"一段 prompt"一起写的', w: 0 },
     ]
   },
   {
-    id: 'd_q10_prompt', cat: 'api', type: 'single',
+    id: 'd_q10_prompt', cat: 'api', type: 'multi',
     trigger: { q10: ['E'] },
-    text: '你在 Q10 勾了 "prompt"。下面哪句最准确？',
+    text: '你在 Q10 勾了 "prompt"。下面哪些写 prompt 的实际感觉你有过？',
     options: [
-      { v: 0, t: 'prompt 就是你给 AI 提的问题' },
-      { v: 1, t: 'prompt 是给 AI 的完整指令（含 system / user）' },
-      { v: 2, t: 'prompt 是模型这次推理的全部输入 — system / user / 工具描述 / RAG 内容 / 历史摘要都算' },
-      { v: 3, t: '上面 + 知道 prompt = "context window 里所有 token"，prompt engineering 本质是在有限 token 预算下设计这些输入' },
-      { v: 'X', t: '说不上来' },
+      { v: 'A', t: '同一意思换种说法，AI 输出差很多', w: 1 },
+      { v: 'B', t: '一个 prompt 我会反复改 5-10 版', w: 1.5 },
+      { v: 'C', t: '写过 / 维护过长 prompt（300 字以上）', w: 2 },
+      { v: 'D', t: '同一 prompt 在不同模型上效果差很多', w: 2 },
+      { v: 'E', t: '想过"prompt 不只是问句，是整个 context"这事', w: 2.5 },
+      { v: 'F', t: '设计过供别人复用的 prompt 模板', w: 3 },
+      { v: 'X', t: '没真"设计"过 prompt，都是随手写', w: 0 },
     ]
   },
   {
-    id: 'd_q10_tool_calling', cat: 'agent', type: 'single',
+    id: 'd_q10_tool_calling', cat: 'agent', type: 'multi',
     trigger: { q10: ['D'] },
-    text: '你在 Q10 勾了 "tool calling"。它的实际机制是？',
+    text: '你在 Q10 勾了 "tool calling"。这件事你接触到什么程度？',
     options: [
-      { v: 0, t: '让 AI 直接去执行系统命令' },
-      { v: 1, t: 'AI 输出 JSON 描述要调什么工具，外部代码读 JSON 去执行，再把结果返给 AI' },
-      { v: 2, t: '上面 + AI 拿到工具结果后继续推理或决定再调其他工具，形成多轮循环' },
-      { v: 3, t: '上面 + 知道工具 schema 设计、失败重试、超时、参数校验、并行调用' },
-      { v: 'X', t: '说不上来' },
+      { v: 'A', t: '见过 ChatGPT / Claude 自动联网 / 读文件', w: 1 },
+      { v: 'B', t: '在 Coze / Dify / 扣子 里拖过工具节点', w: 1.5 },
+      { v: 'C', t: '在 Cursor / Claude Code 看 AI 自动调命令 / 文件', w: 2 },
+      { v: 'D', t: '自己定义过工具的 schema，让 AI 调', w: 2.5 },
+      { v: 'E', t: '处理过工具调用失败 / 参数错 / 超时', w: 3 },
+      { v: 'X', t: '听过但实际怎么用不清楚', w: 0 },
     ]
   },
   {
-    id: 'd_q10_rag', cat: 'rag', type: 'single',
+    id: 'd_q10_rag', cat: 'rag', type: 'multi',
     trigger: { q10: ['G'] },
-    text: '你在 Q10 勾了 "retrieval / RAG"。RAG 里 chunk size 太大 vs 太小，各有什么坏处？',
+    text: '你在 Q10 勾了 "retrieval / RAG"。跟 RAG 你真实接触过哪些？',
     options: [
-      { v: 0, t: '没思考过' },
-      { v: 1, t: '太大慢，太小不准' },
-      { v: 2, t: '太大：召回 chunk 含太多无关信息，模型注意力被稀释；太小：上下文被切碎，关键信息可能跨 chunk 丢失' },
-      { v: 3, t: '上面 + 知道 chunk overlap 缓解切碎问题，且 chunk size 应匹配语义边界（段落/章节）而非固定字数' },
-      { v: 'X', t: '说不上来' },
+      { v: 'A', t: '听别人 / 看文章解释过 RAG 是干嘛', w: 1 },
+      { v: 'B', t: '用过 Coze / Dify 里的"知识库"功能', w: 1.5 },
+      { v: 'C', t: '自己跑过 RAG demo', w: 2 },
+      { v: 'D', t: '调过 chunk size / overlap', w: 2.5 },
+      { v: 'E', t: '处理过"召回不准"或"召回了无关内容"', w: 3 },
+      { v: 'F', t: '加过 reranker / 重排', w: 3 },
+      { v: 'X', t: '能讲个大概，但没实际做过', w: 0 },
     ]
   },
   {
-    id: 'd_q10_evaluation', cat: 'eval', type: 'single',
+    id: 'd_q10_evaluation', cat: 'eval', type: 'multi',
     trigger: { q10: ['J'] },
-    text: '你在 Q10 勾了 "evaluation"。评估一个 RAG 系统，"golden set" 应该长什么样？',
+    text: '你在 Q10 勾了 "evaluation"。AI 评估这件事你实际做过哪些？',
     options: [
-      { v: 0, t: '一堆问题就行' },
-      { v: 1, t: '问题 + 对应的标准答案' },
-      { v: 2, t: '问题 + 标准答案 + 该问题应该从哪些文档检索出来' },
-      { v: 3, t: '上面 + 覆盖典型 query 分布（不只问简单的）、含 adversarial 案例（模糊查询/无答案）、定期更新' },
-      { v: 'X', t: '说不上来' },
+      { v: 'A', t: '给 AI 答案手动打过 👍 / 👎', w: 1 },
+      { v: 'B', t: '给同样问题对比过 ChatGPT / Claude / 豆包 答案', w: 1 },
+      { v: 'C', t: '整理过测试 case，跑 prompt 看准确率', w: 2 },
+      { v: 'D', t: '让 AI 当 judge 给 AI 答案打分', w: 2.5 },
+      { v: 'E', t: '建过 golden set / eval set，迭代时跑一遍', w: 3 },
+      { v: 'X', t: '听过这个词，但没做过', w: 0 },
     ]
   },
 
   // ═════════════════════════════════════════════════════════════
-  // EXPERIENCE-TRIGGERED · 基础题里你说做过 X，对应深度题验证
+  // EXPERIENCE-TRIGGERED · 基础题里你说做过 X，对应深度题接着聊
   // ═════════════════════════════════════════════════════════════
 
   {
-    id: 'd_q4_func_calling_deep', cat: 'agent', type: 'single',
+    id: 'd_q4_func_calling_deep', cat: 'agent', type: 'multi',
     trigger: { q4: ['D'] },
-    text: '你在 Q4 勾了"自己写代码接过 function calling"。工具调用失败（超时/参数错），最佳处理？',
+    text: '你在 Q4 勾了"自己写代码接过 function calling"。具体踩过 / 想过哪些？',
     options: [
-      { v: 0, t: '直接报错给用户' },
-      { v: 1, t: '重试一次' },
-      { v: 2, t: '把错误信息回填给 AI，让它自己重试或换方案' },
-      { v: 3, t: '上面 + 区分可重试错误 vs 终止错误 + 限制重试次数 + 失败兜底回复' },
-      { v: 'X', t: '没遇到过这场景' },
+      { v: 'A', t: '写工具 schema 时纠结过参数怎么描述清楚', w: 1.5 },
+      { v: 'B', t: 'AI 调失败时尝试把错误回喂给它重试', w: 2 },
+      { v: 'C', t: 'AI 在不该调工具时调了，或反过来', w: 2 },
+      { v: 'D', t: '处理过工具超时 / 限流 / 鉴权', w: 2.5 },
+      { v: 'E', t: '设计过多工具并行调用', w: 3 },
+      { v: 'X', t: '我做的还是 demo 阶段，没遇到这些', w: 0 },
     ]
   },
   {
-    id: 'd_q4_platform_deep', cat: 'agent', type: 'single',
+    id: 'd_q4_platform_deep', cat: 'agent', type: 'multi',
     trigger: { q4: ['B'] },
-    text: '你在 Q4 勾了"用过 Coze / Dify / 扣子"。这类平台和直接写代码做 Agent，最大的取舍是？',
+    text: '你在 Q4 勾了"用过 Coze / Dify / 扣子"。在这些平台上的体验？',
     options: [
-      { v: 0, t: '没区别' },
-      { v: 1, t: '平台更快上手，但功能少' },
-      { v: 2, t: '平台快但灵活度低（受可视化节点限制），代码灵活但要自己处理状态/错误/并发' },
-      { v: 3, t: '上面 + 知道平台适合标准化场景（客服/RPA），生产级复杂业务通常走"平台原型 → 代码重写"' },
-      { v: 'X', t: '没深想过' },
+      { v: 'A', t: '拖完节点跑起来挺顺', w: 1 },
+      { v: 'B', t: '在某个节点逻辑上调了很久', w: 1.5 },
+      { v: 'C', t: '用了内置的"知识库 / RAG"功能', w: 2 },
+      { v: 'D', t: '想做的事这些平台做不了，得想办法绕', w: 2.5 },
+      { v: 'E', t: '上线给真实用户用过', w: 3 },
+      { v: 'X', t: '只是试着拖了下，没出成果', w: 0 },
     ]
   },
   {
-    id: 'd_q5_cot_intervene_deep', cat: 'api', type: 'single',
+    id: 'd_q5_cot_intervene_deep', cat: 'api', type: 'multi',
     trigger: { q5: ['G'] },
-    text: '你在 Q5 勾了"人工干预 AI 的思维链"。什么场景下值得这样做？',
+    text: '你在 Q5 勾了"人工干预 AI 的思维链"。具体在什么场景做过？',
     options: [
-      { v: 0, t: '所有场景都该干预' },
-      { v: 1, t: 'AI 老出错的时候' },
-      { v: 2, t: '关键决策点（医疗/法律/财务）+ AI 自由推理结果不稳定的任务' },
-      { v: 3, t: '上面 + 知道干预方式：注入关键步骤 / 用 structured CoT 模板 / 把"想几步"显式数字化 / 中间结果人审' },
-      { v: 'X', t: '说不上来' },
+      { v: 'A', t: 'AI 在某步老错，加了"先做 A 再做 B"的指令', w: 1.5 },
+      { v: 'B', t: '用过 "let\'s think step by step" 这种触发词', w: 1.5 },
+      { v: 'C', t: '写过 structured CoT 模板（明确分步 prompt）', w: 2.5 },
+      { v: 'D', t: '让 AI 输出中间结果，自己人审再让它继续', w: 3 },
+      { v: 'E', t: '在关键决策点强制 AI 给推理过程', w: 2.5 },
+      { v: 'X', t: '我说不清"干预"具体是什么意思', w: 0 },
     ]
   },
   {
-    id: 'd_q5_json_deep', cat: 'api', type: 'single',
+    id: 'd_q5_json_deep', cat: 'api', type: 'multi',
     trigger: { q5: ['E'] },
-    text: '你在 Q5 勾了"让 AI 输出结构化格式"。AI 输出的 JSON 经常 schema 不对（多/少字段/类型错），最有效的解决？',
+    text: '你在 Q5 勾了"让 AI 输出结构化格式"。这件事的真实经历？',
     options: [
-      { v: 0, t: '反复跟它说"要严格 JSON"' },
-      { v: 1, t: '在 prompt 给一个完整 JSON 例子' },
-      { v: 2, t: '用模型自带的 structured output / JSON mode（强制约束）' },
-      { v: 3, t: '上面 + 写 schema validator 兜底，失败时把错误信息回填让 AI 重试' },
-      { v: 'X', t: '没遇到过 / 没试过' },
+      { v: 'A', t: '给了 JSON 例子，AI 大部分时候照做', w: 1 },
+      { v: 'B', t: '偶尔字段多 / 少 / 类型错，得 retry', w: 1.5 },
+      { v: 'C', t: '用过模型的 JSON mode / structured output 强制约束', w: 2 },
+      { v: 'D', t: '写过 schema validator 自动检查', w: 2.5 },
+      { v: 'E', t: '失败时把错误回喂给 AI 让它修', w: 3 },
+      { v: 'X', t: '没特别在意过 JSON 格式', w: 0 },
     ]
   },
   {
-    id: 'd_q6_temp_topp_deep', cat: 'api', type: 'single',
+    id: 'd_q6_temp_deep', cat: 'api', type: 'multi',
     trigger: { q6: { gte: 2 } },
-    text: '你在 Q6 表示懂 temperature。生产环境通常 temperature 和 top-p 怎么搭配？',
+    text: '你说大概懂 temperature。这事的真实接触？',
     options: [
-      { v: 0, t: '都调到最高，AI 才有创造力' },
-      { v: 1, t: '都用 0.7 默认就行' },
-      { v: 2, t: '只调一个就够（两个都调容易不可控）— 通常只调 temperature，确定性任务设 0' },
-      { v: 3, t: '上面 + 知道 temperature=0 也不等于完全确定（batch/seed 仍有微差）；创意任务 0.7-1.0，分类/抽取 0' },
-      { v: 'X', t: '没生产经验' },
+      { v: 'A', t: '调过 temperature 看输出变化', w: 1 },
+      { v: 'B', t: '不同任务我会用不同 temperature', w: 1.5 },
+      { v: 'C', t: '在产品里设过固定 temperature 值', w: 2 },
+      { v: 'D', t: '知道 0 也不等于完全确定（batch 微差）', w: 2.5 },
+      { v: 'E', t: '同时调过 top-p / top-k 做过对比', w: 3 },
+      { v: 'X', t: '大概知道是控制随机性的，没真调过', w: 0 },
     ]
   },
   {
-    id: 'd_q3_rag_rerank_deep', cat: 'rag', type: 'single',
+    id: 'd_q3_rag_done_deep', cat: 'rag', type: 'multi',
     trigger: { q3: { gte: 3 } },
-    text: '你在 Q3 表示自己做过 RAG。重排（reranker）在 pipeline 里的作用是？',
+    text: '你说自己做过 RAG。做的过程中你遇到 / 想过哪些？',
     options: [
-      { v: 0, t: '加快检索速度' },
-      { v: 1, t: '把检索结果按相关性重新排一下' },
-      { v: 2, t: '向量检索召回 top-K（粗排，快但不准）→ reranker 用更强模型对 top-K 精排（慢但准）' },
-      { v: 3, t: '上面 + 知道常见 reranker（Cohere / BGE）、reranker 通常用 cross-encoder（vs embedding 的 bi-encoder）' },
-      { v: 'X', t: '没用过' },
+      { v: 'A', t: '挑过 chunk size / overlap', w: 1.5 },
+      { v: 'B', t: '选过 embedding 模型', w: 2 },
+      { v: 'C', t: '处理过"问题在文档里，但召回不到"', w: 2.5 },
+      { v: 'D', t: '加过 reranker / 重排', w: 2.5 },
+      { v: 'E', t: '让 AI 在回答里给出处 / 来源', w: 2 },
+      { v: 'F', t: '给 RAG 建过 eval set 跑准确率', w: 3 },
+      { v: 'X', t: '我做的 RAG 简单，没碰到这些', w: 0 },
     ]
   },
   {
-    id: 'd_q11_eval_advanced_deep', cat: 'eval', type: 'single',
+    id: 'd_q11_eval_advanced_deep', cat: 'eval', type: 'multi',
     trigger: { q11: ['D', 'E'] },
-    text: '你在 Q11 勾了"失败案例归类"或"上线监控"。LLM-as-judge（让 AI 评估 AI 输出）最大的坑是？',
+    text: '你在 Q11 勾了"失败案例归类"或"上线监控"。具体做过哪些？',
     options: [
-      { v: 0, t: '没什么坑，AI 评得挺准' },
-      { v: 1, t: '有时不准，得人工抽查' },
-      { v: 2, t: 'judge model 自己也有偏好（偏长答案 / 偏自家模型）—— 评估结果有系统性偏差' },
-      { v: 3, t: '上面 + 知道缓解方式：用更强 judge、pairwise 比较替代打分、严格 rubric、人工校准 judge' },
-      { v: 'X', t: '没做过' },
+      { v: 'A', t: '跑完任务把"AI 出错的 case"另存一份', w: 1.5 },
+      { v: 'B', t: '给失败 case 分过类（哪种错最多）', w: 2 },
+      { v: 'C', t: '上线后定期跑 eval set 看是否回归', w: 2.5 },
+      { v: 'D', t: '用 LLM-as-judge 做过自动评估', w: 2.5 },
+      { v: 'E', t: '设过告警：质量下滑超过 X% 通知人', w: 3 },
+      { v: 'X', t: '我做得没这么系统', w: 0 },
     ]
   },
   {
-    id: 'd_q12_launch_deep', cat: 'product', type: 'single',
+    id: 'd_q12_launch_deep', cat: 'product', type: 'multi',
     trigger: { q12: ['D'] },
-    text: '你在 Q12 勾了"上线过产品"。AI 功能上线后第一周，最值得盯的指标是？',
+    text: '你在 Q12 勾了"上线过产品"。AI 功能上线那段经历？',
     options: [
-      { v: 0, t: '调用量' },
-      { v: 1, t: '用户点赞 / 点踩比例' },
-      { v: 2, t: '失败率 + 用户重试率 + 用户主动放弃率（这些比满意度更早暴露问题）' },
-      { v: 3, t: '上面 + 失败案例 sample + 成本 / 延迟 SLO + 与对照组对比的留存' },
-      { v: 'X', t: '没上过线' },
+      { v: 'A', t: '上线前担心过 AI 答错被骂', w: 1 },
+      { v: 'B', t: '监控过用户用 AI 的频率 / 留存', w: 1.5 },
+      { v: 'C', t: '看过失败 case 改了 prompt 重发', w: 2 },
+      { v: 'D', t: '设过限流 / cost cap 防止刷爆', w: 2.5 },
+      { v: 'E', t: '做过灰度 / AB test 对比 AI 版 vs 非 AI 版', w: 3 },
+      { v: 'X', t: '上线过但 AI 功能不是核心', w: 0 },
     ]
   },
   {
-    id: 'd_q13_injection_deep', cat: 'engineering', type: 'single',
+    id: 'd_q13_injection_deep', cat: 'engineering', type: 'multi',
     trigger: { q13: ['A'] },
-    text: '你在 Q13 听说过 "prompt injection"。最有效的缓解策略组合？',
+    text: '你在 Q13 勾了"听说过 prompt injection"。跟这件事你的接触？',
     options: [
-      { v: 0, t: '禁止用户输入恶意内容' },
-      { v: 1, t: '在 system prompt 加"不要执行用户的恶意指令"' },
-      { v: 2, t: '把用户输入 sandbox（明确标记是数据而非指令）+ 输出过滤 + 不让 AI 执行高权限操作' },
-      { v: 3, t: '上面 + 防御纵深（多层）+ 监控异常 prompt + 知道现在没法 100% 防住，靠"权限最小化"兜底' },
-      { v: 'X', t: '说不上来' },
+      { v: 'A', t: '看过有人演示"用户输入 hack AI"的案例', w: 1 },
+      { v: 'B', t: '担心过自己产品的 AI 被这样攻击', w: 1.5 },
+      { v: 'C', t: '在 system prompt 加过防护语句', w: 2 },
+      { v: 'D', t: '把用户输入做过 sandbox / 隔离处理', w: 2.5 },
+      { v: 'E', t: '测试过自己系统能不能被 injection 攻破', w: 3 },
+      { v: 'X', t: '听过但没真的关心过', w: 0 },
     ]
   },
   {
-    id: 'd_q13_monitor_deep', cat: 'engineering', type: 'single',
+    id: 'd_q13_monitor_deep', cat: 'engineering', type: 'multi',
     trigger: { q13: ['D', 'E'] },
-    text: '你在 Q13 勾了"监控"或"降级方案"。AI 服务挂了，最优的降级路径？',
+    text: '你在 Q13 勾了"监控"或"降级方案"。具体做过？',
     options: [
-      { v: 0, t: '直接告诉用户"AI 不可用"' },
-      { v: 1, t: '切到备用模型' },
-      { v: 2, t: '主模型 → 备用模型 → 规则兜底 → 静态回复（多级降级，按 SLA 切换）' },
-      { v: 3, t: '上面 + 区分"完全挂"vs"延迟高/质量差"（latency-based fallback）+ 灰度时就建立基线 metrics' },
-      { v: 'X', t: '没做过' },
+      { v: 'A', t: '设过告警：调用量 / 错误率超阈值通知', w: 1.5 },
+      { v: 'B', t: '看过 AI 服务的 trace / log', w: 2 },
+      { v: 'C', t: '设过 fallback：主模型挂了切备用', w: 2.5 },
+      { v: 'D', t: '设过 latency-based fallback（慢了就降级）', w: 3 },
+      { v: 'E', t: '写过 incident postmortem（AI 挂了复盘）', w: 3 },
+      { v: 'X', t: '公司有专人做，我没直接做', w: 0 },
     ]
   },
   {
-    id: 'd_coding_deploy_deep', cat: 'engineering', type: 'single',
+    id: 'd_coding_deploy_deep', cat: 'engineering', type: 'multi',
     trigger: { coding: { gte: 2 }, q1: ['E'] },
-    text: '你有编程基础且部署过 AI 应用。AI 应用上线，下面哪个最容易被低估？',
+    text: '你有编程基础 + 部署过 AI 应用。上线那段经历最让你纠结的是？',
     options: [
-      { v: 0, t: '功能完整性' },
-      { v: 1, t: '响应速度' },
-      { v: 2, t: 'token 成本（用户实际使用 ≠ 开发测试，长 context / 重试能把成本拉高 10 倍）' },
-      { v: 3, t: '上面 + 限流 / quota / cost cap / 异常用户检测；没这些会被恶意刷爆' },
-      { v: 'X', t: '没上过线' },
+      { v: 'A', t: '选哪个云服务 / 部署平台', w: 1 },
+      { v: 'B', t: 'API key 的安全管理', w: 1.5 },
+      { v: 'C', t: '成本爆炸（token / 调用量）', w: 2 },
+      { v: 'D', t: '延迟太高，用户体验不好', w: 2 },
+      { v: 'E', t: '限流 / 防刷的策略', w: 2.5 },
+      { v: 'F', t: '模型版本切换 / 灰度', w: 3 },
+      { v: 'X', t: '部署完没遇到啥大问题', w: 0 },
     ]
   },
 ];
