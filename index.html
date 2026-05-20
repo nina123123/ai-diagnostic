@@ -1090,10 +1090,9 @@ const DEEP_QUESTIONS = [
       { v: 'D', t: '我同一个 prompt 改 5 版以上才发出去', w: 1.5 },
       { v: 'E', t: '我特意试过给 AI 角色（"你是一个…"）', w: 1.5 },
       { v: 'F', t: '我在 prompt 里给过具体例子让 AI 模仿（few-shot）', w: 2 },
-      { v: 'G', t: '我让 AI 输出过结构化格式（JSON / 表格 / Markdown）', w: 2 },
+      { v: 'G', t: '我让 AI 输出过结构化格式（JSON / YAML 等）', w: 2 },
       { v: 'H', t: '我维护过 / 复用过 prompt 模板', w: 2.5 },
-      { v: 'I', t: '我在 prompt 里加过"如果 X 就这样，否则那样"的条件逻辑', w: 2.5 },
-      { v: 'J', t: '我注意到同一个 prompt 在不同模型上效果差很多', w: 3 },
+      { v: 'I', t: '我注意到同一个 prompt 在不同模型上效果差很多', w: 3 },
       { v: 'X', t: '这些场景我都没真接触过', w: 0 },
     ]
   },
@@ -1105,15 +1104,13 @@ const DEEP_QUESTIONS = [
     text: '你用 Cursor / Claude Code / Copilot 时，下面这些经历过哪些？',
     options: [
       { v: 'A', t: '我用过 GitHub Copilot 做代码补全', w: 1 },
-      { v: 'B', t: '我用过 Cursor / Windsurf', w: 1 },
-      { v: 'C', t: '我用过 Claude Code 做项目', w: 1.5 },
-      { v: 'D', t: '我每周用 AI 写代码至少几次', w: 1.5 },
-      { v: 'E', t: '我在公司项目里用 AI 写过代码', w: 2 },
-      { v: 'F', t: '我看 AI 自己跑 lint / test 看输出，再继续改', w: 2 },
-      { v: 'G', t: '我让 AI 改文件时它改得太多 / 改错地方，我拉回来过', w: 2 },
-      { v: 'H', t: '我跟 AI 长会话里它逐渐"忘"了前面的约定', w: 2 },
-      { v: 'I', t: '我在 instructions / rules 文件里设过项目特定规则', w: 2.5 },
-      { v: 'J', t: '我观察过 AI 用了哪些工具（Read / Edit / Bash）形成 loop', w: 3 },
+      { v: 'B', t: '我用过 Cursor / Windsurf / TREA 等 AI IDE', w: 1 },
+      { v: 'C', t: '我用过 Claude Code、Codex 等 Coding Agent', w: 1.5 },
+      { v: 'D', t: '我看 AI 自己跑 lint / test 看输出，再继续改', w: 2 },
+      { v: 'E', t: '我会提前和 AI 约定后验收和测试标准，再让 AI 开始功能实现', w: 2 },
+      { v: 'F', t: '我跟 AI 长会话里它逐渐"忘"了前面的约定', w: 2 },
+      { v: 'G', t: '我在 instructions / rules 文件里设过项目特定规则', w: 2.5 },
+      { v: 'H', t: '我观察过 AI 用了哪些工具（Read / Edit / Bash）形成 loop', w: 3 },
       { v: 'X', t: '这些场景我都没真接触过', w: 0 },
     ]
   },
@@ -1132,8 +1129,7 @@ const DEEP_QUESTIONS = [
       { v: 'F', t: '我注意到 input 和 output token 计费不一样', w: 2 },
       { v: 'G', t: '我开过 streaming（让 AI 边生成边显示）', w: 2 },
       { v: 'H', t: '我在 messages 里用过 system 角色设定行为', w: 2 },
-      { v: 'I', t: '我对比过同一 prompt 在不同模型 API 上的结果 / 价格', w: 2.5 },
-      { v: 'J', t: '我用过 prompt caching 来省成本', w: 3 },
+      { v: 'I', t: '我用过 prompt caching 来省成本', w: 3 },
       { v: 'X', t: '这些场景我都没真接触过', w: 0 },
     ]
   },
@@ -1144,15 +1140,16 @@ const DEEP_QUESTIONS = [
     trigger: { q1: ['E'] },
     text: '你部署 AI 应用让别人用时，下面这些经历过哪些？',
     options: [
-      { v: 'A', t: '我把 AI 应用部署到过 Vercel / Render / 自建服务器', w: 1.5 },
-      { v: 'B', t: '我担心过 API key 泄露被滥用', w: 1.5 },
-      { v: 'C', t: '我部署的 AI 应用有过真实用户用', w: 2 },
-      { v: 'D', t: '我为用户加过限流 / 配额', w: 2 },
-      { v: 'E', t: '我设过 cost cap / quota 防止账单爆炸', w: 2.5 },
-      { v: 'F', t: '我处理过用户输入异常（超长 / 注入 / 多语言）', w: 2.5 },
-      { v: 'G', t: '我设过 AI 失败时的 fallback / 兜底回复', w: 2.5 },
-      { v: 'H', t: '我把模型从一个版本切换到另一个上线过', w: 2.5 },
-      { v: 'I', t: '我看线上日志找出过特定用户 / 特定请求的异常模式', w: 3 },
+      { v: 'A', t: '我在电脑上构建应用后，分享 html 文件或者截屏给朋友展示，或者直接让朋友 / 同事来我的设备上测试', w: 1.5 },
+      { v: 'B', t: '我把 AI 应用部署到过 Vercel / Render / 自建服务器', w: 1.5 },
+      { v: 'C', t: '我担心过 API key 泄露被滥用', w: 1.5 },
+      { v: 'D', t: '我部署的 AI 应用有过真实用户用', w: 2 },
+      { v: 'E', t: '我为用户加过限流 / 配额', w: 2 },
+      { v: 'F', t: '我设过 cost cap / quota 防止账单爆炸', w: 2.5 },
+      { v: 'G', t: '我处理过用户输入异常（超长 / 注入）', w: 2.5 },
+      { v: 'H', t: '我设过 AI 失败时的 fallback / 兜底回复', w: 2.5 },
+      { v: 'I', t: '我把模型从一个版本切换到另一个上线过', w: 2.5 },
+      { v: 'J', t: '我看线上日志找出过特定用户 / 特定请求的异常模式', w: 3 },
       { v: 'X', t: '这些场景我都没真接触过', w: 0 },
     ]
   },
@@ -1179,7 +1176,7 @@ const DEEP_QUESTIONS = [
     id: 'dq_q2_c',
     cat: 'foundation',
     type: 'multi',
-    trigger: { q2: { eq: 2 } },
+    trigger: { q2: { gte: 2 } },
     text: '你跟 embedding 接触的过程中，下面这些发生过哪些？',
     options: [
       { v: 'A', t: '我搜过 / 读过"embedding 是什么"的文章', w: 0.5 },
@@ -1196,7 +1193,7 @@ const DEEP_QUESTIONS = [
     id: 'dq_q2_d',
     cat: 'foundation',
     type: 'multi',
-    trigger: { q2: { eq: 3 } },
+    trigger: { q2: { gte: 3 } },
     text: '你跟 embedding 实际工作时，下面这些经历过哪些？',
     options: [
       { v: 'A', t: '我跑过 embedding 模型的官方 demo / 教程', w: 1.5 },
@@ -1206,6 +1203,7 @@ const DEEP_QUESTIONS = [
       { v: 'E', t: '我意外发现 embedding 把反义词 / 风格相反的内容也映射得很近', w: 2.5 },
       { v: 'F', t: '我在自己的数据上跑过两个 embedding 模型看哪个召回更准', w: 3 },
       { v: 'G', t: '我读过 MTEB / leaderboard，基于 benchmark 选过模型', w: 3 },
+      { v: 'H', t: '我处理过多模态的 embedding', w: 3 },
       { v: 'X', t: '这些场景我都没真接触过', w: 0 },
     ]
   },
@@ -1213,7 +1211,7 @@ const DEEP_QUESTIONS = [
     id: 'dq_q3_c',
     cat: 'rag',
     type: 'multi',
-    trigger: { q3: { eq: 2 } },
+    trigger: { q3: { gte: 2 } },
     text: '你跟 RAG 接触的过程中，下面这些发生过哪些？',
     options: [
       { v: 'A', t: '我看过 RAG 的科普文章 / 视频 / 直播', w: 1 },
@@ -1230,7 +1228,7 @@ const DEEP_QUESTIONS = [
     id: 'dq_q3_d',
     cat: 'rag',
     type: 'multi',
-    trigger: { q3: { eq: 3 } },
+    trigger: { q3: { gte: 3 } },
     text: '你做 RAG 时，下面这些经历过哪些？',
     options: [
       { v: 'A', t: '我跑过 LlamaIndex / LangChain 的 RAG demo', w: 2 },
@@ -1325,7 +1323,7 @@ const DEEP_QUESTIONS = [
     id: 'dq_q6_c_1',
     cat: 'api',
     type: 'multi',
-    trigger: { q6: { eq: 2 } },
+    trigger: { q6: { gte: 2 } },
     text: '你跟 temperature 接触的过程中，下面这些经历过哪些？',
     options: [
       { v: 'A', t: '我搜过 / 读过 "temperature 怎么调" 的文章', w: 1 },
@@ -1343,7 +1341,7 @@ const DEEP_QUESTIONS = [
     id: 'dq_q6_c_2',
     cat: 'api',
     type: 'multi',
-    trigger: { q6: { eq: 2 } },
+    trigger: { q6: { gte: 2 } },
     text: '你思考 / 接触 temperature 这件事时，下面这些经历过哪些？',
     options: [
       { v: 'A', t: '我搜过 "temperature 是什么" 来了解', w: 1 },
@@ -1360,10 +1358,10 @@ const DEEP_QUESTIONS = [
     id: 'dq_q6_d_1',
     cat: 'api',
     type: 'multi',
-    trigger: { q6: { eq: 3 } },
+    trigger: { q6: { gte: 3 } },
     text: '你在生产环境用 temperature / top-p 时，下面这些经历过哪些？',
     options: [
-      { v: 'A', t: '我跟同事讨论过 temperature vs top-p 的区别', w: 2 },
+      { v: 'A', t: '我能说清楚 temperature vs top-p 的区别', w: 2 },
       { v: 'B', t: '我在自己产品里设过固定 temperature 值', w: 2 },
       { v: 'C', t: '我在生产里给不同任务设过不同的 temperature', w: 2.5 },
       { v: 'D', t: '我读过文档 / 论文里关于 temperature 的具体描述', w: 2.5 },
@@ -1377,7 +1375,7 @@ const DEEP_QUESTIONS = [
     id: 'dq_q6_d_2',
     cat: 'api',
     type: 'multi',
-    trigger: { q6: { eq: 3 } },
+    trigger: { q6: { gte: 3 } },
     text: '你用 reasoning 模型（o1 / o3 / Claude thinking）时，下面这些经历过哪些？',
     options: [
       { v: 'A', t: '我用过 o1 / o3 / Claude thinking 等 reasoning 模型', w: 2 },
@@ -1387,6 +1385,7 @@ const DEEP_QUESTIONS = [
       { v: 'E', t: '我注意到 reasoning 模型的 temperature 几乎没作用', w: 3 },
       { v: 'F', t: '我调过 reasoning_effort 而不是 temperature', w: 3 },
       { v: 'G', t: '我看过 reasoning 模型的 thinking 过程（如果 API 暴露）', w: 3 },
+      { v: 'H', t: '我尝试过手动修改 / 注入 reasoning 的 token 以干预模型最终输出', w: 3 },
       { v: 'X', t: '这些场景我都没真接触过', w: 0 },
     ]
   },
@@ -1462,7 +1461,7 @@ const DEEP_QUESTIONS = [
     id: 'dq_q8_b',
     cat: 'agent',
     type: 'multi',
-    trigger: { q8: { eq: 1 } },
+    trigger: { q8: { gte: 1 } },
     text: '你听过 / 接触 function calling 的过程中，下面这些经历过哪些？',
     options: [
       { v: 'A', t: '我读过 function calling 的科普文章', w: 1 },
@@ -1479,7 +1478,7 @@ const DEEP_QUESTIONS = [
     id: 'dq_q8_c',
     cat: 'agent',
     type: 'multi',
-    trigger: { q8: { eq: 2 } },
+    trigger: { q8: { gte: 2 } },
     text: '你用 function calling 时，下面这些经历过哪些？',
     options: [
       { v: 'A', t: '我用过 Coze / Dify 里的工具节点', w: 1.5 },
@@ -1497,7 +1496,7 @@ const DEEP_QUESTIONS = [
     id: 'dq_q8_d',
     cat: 'agent',
     type: 'multi',
-    trigger: { q8: { eq: 3 } },
+    trigger: { q8: { gte: 3 } },
     text: '你做多工具协作系统时，下面这些经历过哪些？',
     options: [
       { v: 'A', t: '我用过 LangChain / LlamaIndex 的 agent 框架', w: 2.5 },
@@ -1697,7 +1696,7 @@ const DEEP_QUESTIONS = [
       { v: 'C', t: '我维护过 300+ 字的长 prompt 反复迭代', w: 2 },
       { v: 'D', t: '我意识到 prompt 包括 system / 工具 / 历史等所有上下文', w: 2.5 },
       { v: 'E', t: '我注意到同 prompt 在不同模型差异大，要分别调', w: 2.5 },
-      { v: 'F', t: '我把 prompt 当文档管理，记录每次改动', w: 3 },
+      { v: 'F', t: '我对 prompt 进行版本管理，记录每次改动', w: 3 },
       { v: 'G', t: '我做过 prompt 的 "token 预算" 思考（不能爆 context）', w: 3 },
       { v: 'X', t: '这些场景我都没真接触过', w: 0 },
     ]
@@ -1728,7 +1727,7 @@ const DEEP_QUESTIONS = [
     options: [
       { v: 'A', t: '我读过 / 看过 RAG 的科普文章 / 视频', w: 1 },
       { v: 'B', t: '我看过 RAG 的架构图', w: 1.5 },
-      { v: 'C', t: '我用过 Coze / Dify / 扣子 里的 "知识库" 功能', w: 1.5 },
+      { v: 'C', t: '我用过 Coze / Dify / 扣子 等类似产品里的 "知识库" 功能', w: 1.5 },
       { v: 'D', t: '我跟人解释过 RAG 是干嘛的', w: 2 },
       { v: 'E', t: '我自己跑过 RAG demo（chunk + 向量库 + 模型回答）', w: 2 },
       { v: 'F', t: '我调过 chunk size / overlap 看对召回的影响', w: 2.5 },
@@ -1744,14 +1743,13 @@ const DEEP_QUESTIONS = [
     trigger: { q10: ['H'] },
     text: '你跟 embedding 实际接触时，下面这些经历过哪些？',
     options: [
-      { v: 'A', t: '我在 Cursor / Claude Code 看 AI 用过向量库', w: 1 },
-      { v: 'B', t: '我自己调过 embedding API 看过输出向量', w: 1.5 },
-      { v: 'C', t: '我跟人解释过 embedding 是干嘛的', w: 2 },
-      { v: 'D', t: '我看过 embedding 的可视化（如 t-SNE / 散点图）', w: 2 },
-      { v: 'E', t: '我在 RAG 里选过 embedding 模型', w: 2.5 },
-      { v: 'F', t: '我意外发现 embedding 把反义词也映射得很近', w: 2.5 },
-      { v: 'G', t: '我对比过两个 embedding 在自己数据上的效果', w: 3 },
-      { v: 'H', t: '我注意过 embedding 维度跟存储 / 查询的取舍', w: 3 },
+      { v: 'A', t: '我自己调过 embedding API 看过输出向量', w: 1.5 },
+      { v: 'B', t: '我跟人解释过 embedding 是干嘛的', w: 2 },
+      { v: 'C', t: '我看过 embedding 的可视化（如 t-SNE / 散点图）', w: 2 },
+      { v: 'D', t: '我在 RAG 里选过 embedding 模型', w: 2.5 },
+      { v: 'E', t: '我意外发现 embedding 把反义词也映射得很近', w: 2.5 },
+      { v: 'F', t: '我对比过两个 embedding 在自己数据上的效果', w: 3 },
+      { v: 'G', t: '我注意过 embedding 维度跟存储 / 查询的取舍', w: 3 },
       { v: 'X', t: '这些场景我都没真接触过', w: 0 },
     ]
   },
@@ -1800,7 +1798,7 @@ const DEEP_QUESTIONS = [
     options: [
       { v: 'A', t: '我看过别人 / 教科书是怎么拆解需求的', w: 1 },
       { v: 'B', t: '我跟 PM / 老板 / 客户对过具体需求', w: 1 },
-      { v: 'C', t: '我跟人对过一个模糊需求，反复问 "具体要什么"', w: 1.5 },
+      { v: 'C', t: '我能在和人沟通时，把一个模糊需求收敛到具体任务', w: 1.5 },
       { v: 'D', t: '我把一个大需求拆成 "AI 一次能完成的小任务"', w: 2 },
       { v: 'E', t: '我给每个子任务定过 "完成" 的判定标准', w: 2.5 },
       { v: 'F', t: '我注意过拆完反过来精简（这一步真有必要吗）', w: 2.5 },
@@ -1891,8 +1889,7 @@ const DEEP_QUESTIONS = [
       { v: 'D', t: '我注意到用户用 AI 的方式跟我想的不一样', w: 2 },
       { v: 'E', t: '我整理过用户反馈给团队看', w: 2 },
       { v: 'F', t: '我把用户访谈整理成 transcript / 主题', w: 2 },
-      { v: 'G', t: '我访谈过没用 AI 的用户为什么不用', w: 2.5 },
-      { v: 'H', t: '我从访谈里挖出过非显然的产品改进点', w: 2.5 },
+      { v: 'G', t: '我从访谈里挖出过非显然的产品改进点', w: 2.5 },
       { v: 'X', t: '这些场景我都没真接触过', w: 0 },
     ]
   },
@@ -1970,14 +1967,10 @@ const DEEP_QUESTIONS = [
   },
 ];
 
-// ─────────────────────────────────────────────────────────────
 // 深度题触发逻辑：根据用户基础题答案 + 编程水平，筛选要展示的深度题
-// ─────────────────────────────────────────────────────────────
 function deepQuestionTriggered(q, basicAnswers, codingLevel) {
-  if (!q.trigger) return true; // 无 trigger = baseline，永远显示
-
+  if (!q.trigger) return true;
   const t = q.trigger;
-
   for (const [key, cond] of Object.entries(t)) {
     if (key === 'coding') {
       if (cond.gte !== undefined && (codingLevel ?? 0) < cond.gte) return false;
@@ -1985,11 +1978,9 @@ function deepQuestionTriggered(q, basicAnswers, codingLevel) {
     }
     const ans = basicAnswers[key];
     if (Array.isArray(cond)) {
-      // 多选题触发：用户答案数组必须命中 cond 里任意一个
       if (!Array.isArray(ans)) return false;
       if (!cond.some(c => ans.includes(c))) return false;
     } else if (cond && typeof cond === 'object') {
-      // 单选题：支持 eq / gte / lt 等比较
       const numAns = typeof ans === 'number' ? ans : -1;
       if (cond.eq !== undefined && numAns !== cond.eq) return false;
       if (cond.gte !== undefined && numAns < cond.gte) return false;
