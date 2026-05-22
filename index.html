@@ -2096,7 +2096,8 @@ function renderQuestionList(questions, containerId, stateKey, prefix) {
       c.querySelectorAll(`[data-q="${qid}"]`).forEach(o => o.classList.remove('selected'));
       e.target.closest('.option').classList.add('selected');
     } else {
-      if (!state[stateKey][qid]) state[stateKey][qid] = [];
+      // 防御：state 里如果是旧数据（非数组），强制重置为空数组
+      if (!Array.isArray(state[stateKey][qid])) state[stateKey][qid] = [];
 
       if (e.target.checked) {
         if (e.target.value === 'X') {
