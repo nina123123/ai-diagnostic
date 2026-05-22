@@ -3027,19 +3027,24 @@ function renderResult() {
   currentName = name;
   document.getElementById('mdPreview').value = currentMD;
 
-  // 同时生成"完整答题记录"用于换个 AI 重新分析
-  currentRawMD = genRawRecord({
-    name, role, cats, overall, freetext, topic,
-    answers: state.answers, codingLevel: coding,
-    deepAnswers: state.deepAnswers || {}, preciseMode: preciseModeOn
-  });
-
-  // 切换屏幕
+  // 切换屏幕（先切，避免后面任何错误卡住用户）
   document.getElementById('questionnaire').style.display = 'none';
   document.getElementById('transition').style.display = 'none';
   document.getElementById('deepQuestionnaire').style.display = 'none';
   document.getElementById('result').classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // 生成"完整答题记录"用于换个 AI 重新分析（失败也不影响主流程）
+  try {
+    currentRawMD = genRawRecord({
+      name, role, cats, overall, freetext, topic,
+      answers: state.answers, codingLevel: coding,
+      deepAnswers: state.deepAnswers || {}, preciseMode: preciseModeOn
+    });
+  } catch (e) {
+    console.error('[genRawRecord failed]', e);
+    currentRawMD = ''; // 失败则下载按钮不响应，不卡用户
+  }
 
   // 静默后台提交
   submitToTeam();
