@@ -470,6 +470,23 @@ textarea { resize: vertical; min-height: 120px; }
   border: 1px solid var(--line);
 }
 
+/* Editable textarea variant — same look, but user can type into it */
+.md-preview-editable {
+  display: block;
+  width: 100%;
+  height: 320px;
+  resize: vertical;
+  color: var(--ink);
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+.md-preview-editable:focus {
+  border-color: var(--accent);
+  background: var(--bg-card);
+}
+
 .muted { color: var(--ink-faint); font-size: 13px; }
 
 /* ───────── Submit to Team Status ───────── */
@@ -838,10 +855,10 @@ textarea { resize: vertical; min-height: 120px; }
     <div class="section-header">
       <span class="section-num">⬇</span>
       <span class="section-title">你的专属 Markdown</span>
-      <span class="section-hint">可下载 · 可粘进任何 AI</span>
+      <span class="section-hint">可编辑 · 可下载 · 可粘进任何 AI</span>
     </div>
-    <p style="margin-bottom: 12px; font-size: 14px; color: var(--ink-soft);">下面这份 .md 文件包含了你的画像 + 给未来 AI 看的"使用说明"。把它贴到 Claude / ChatGPT 对话开头，AI 就知道你的水平、最适合用什么方式教你。</p>
-    <div class="md-preview" id="mdPreview"></div>
+    <p style="margin-bottom: 12px; font-size: 14px; color: var(--ink-soft);">下面这份 .md 包含了你的画像 + 给未来 AI 看的"使用说明"。<strong>你可以直接在框里改，下载 / 复制时会保留你的修改。</strong>把它贴到 Claude / ChatGPT 对话开头，AI 就知道你的水平、最适合用什么方式教你。</p>
+    <textarea class="md-preview md-preview-editable" id="mdPreview" spellcheck="false"></textarea>
   </section>
 
   <!-- Actions -->
@@ -853,6 +870,22 @@ textarea { resize: vertical; min-height: 120px; }
     <button class="btn btn-secondary" id="copyBtn">复制全文</button>
     <button class="btn btn-secondary" id="restartBtn">重新填一次</button>
   </div>
+
+  <!-- Raw Record Export (for re-analysis by other AI) -->
+  <section class="section" style="margin-top: 48px;">
+    <div class="section-header">
+      <span class="section-num">🔄</span>
+      <span class="section-title">想换个 AI 重新分析？</span>
+      <span class="section-hint">导出完整答题记录</span>
+    </div>
+    <p style="margin-bottom: 12px; font-size: 14px; color: var(--ink-soft);">上面那份 Markdown 是<strong>我这个工具的预设分析模板</strong>。如果你想换个角度看自己，可以下载下面这份"完整答题记录"，里面是你每道题的原始答案 + 给别的 AI 用的提示词模板。粘到 Claude / ChatGPT / 豆包 等，让它从它自己的视角给你分析。</p>
+    <div class="actions" style="margin-top: 16px; padding-top: 0; border: none; justify-content: flex-start;">
+      <button class="btn btn-secondary" id="downloadRawBtn">
+        <span>📋</span>
+        下载完整答题记录
+      </button>
+    </div>
+  </section>
 
   <div class="footer">
     本工具由 <span>Intent / Nina</span> 设计 · 基于 20 模块 AI 能力诊断框架的精简版<br>
@@ -2724,9 +2757,128 @@ function getStrongest(cats) {
 }
 
 // ═══════════════════════════════════════════════════════
+// 生成"完整答题记录" — 给别的 AI 重新分析用
+// 不是预设的画像模板，而是用户每道题的原始答案
+// ═══════════════════════════════════════════════════════
+function genRawRecord(data) {
+  const { name, role, cats, overall, freetext, topic, answers, codingLevel, deepAnswers, preciseMode } = data;
+  const date = new Date().toISOString().slice(0, 10);
+  const codingLabel = ['完全没学过', '学过一点（HTML/CSS/Python 基础）', '能独立写小项目', '工程经验丰富'][codingLevel] || '未填';
+
+  // 把单选 / 多选答案统一格式化
+  function formatAnswer(q, ans) {
+    if (ans === undefined || ans === null) return '_（未作答）_';
+    if (Array.isArray(ans)) {
+      // multi
+      if (ans.length === 0) return '_（未作答）_';
+      if (ans.includes('X')) return '✗ ' + (q.options.find(o => o.v === 'X')?.t || 'X');
+      const picks = ans.map(letter => {
+        const opt = q.options.find(o => o.v === letter);
+        return opt ? `✅ ${letter}：${opt.t}` : `（未知 ${letter}）`;
+      });
+      return '\n' + picks.map(p => '  - ' + p).join('\n');
+    }
+    if (ans === 'X') return '✗ ' + (q.options.find(o => o.v === 'X')?.t || 'X');
+    // single (number)
+    const opt = q.options.find(o => o.v === ans);
+    return opt ? `✅ ${opt.t}` : `（值 ${ans}）`;
+  }
+
+  let md = `# ${name || '匿名用户'} 的 AI 能力诊断 · 完整答题记录\n\n`;
+  md += `\`${date} · 这是原始答题数据，不是分析结果\`\n\n`;
+  md += `---\n\n`;
+  md += `## 👇 这份文档是什么\n\n`;
+  md += `这不是预设模板分析的结果，是 **${name || '我'}** 填这套 AI 能力诊断时，每道题的**真实选择**。\n\n`;
+  md += `你（任何 AI）可以基于这些原始数据，从你自己的视角给 ${name || '我'} 做分析 / 建议，不必受我们这个工具的预设画像约束。\n\n`;
+  md += `---\n\n`;
+
+  md += `## 基本信息\n\n`;
+  md += `- **姓名**：${name || '未填'}\n`;
+  md += `- **角色 / 工作方向**：${role || '未填'}\n`;
+  md += `- **编程基础**：${codingLabel}\n`;
+  md += `- **是否做了深度题**：${preciseMode ? '是' : '否（只填了基础 13 题）'}\n`;
+  md += `- **提交时间**：${date}\n\n`;
+
+  md += `---\n\n`;
+  md += `## 第一部分 · 基础题（13 题必答）\n\n`;
+  md += `每题展示题目 + 我选的（✅）+ 我没选的（⬜）。\n\n`;
+
+  QUESTIONS.forEach((q, i) => {
+    md += `### Q${i+1}. ${q.text}${q.type === 'multi' ? '  *(多选)*' : '  *(单选)*'}\n\n`;
+    if (q.hint) md += `> ${q.hint}\n\n`;
+    const ans = answers[q.id];
+    q.options.forEach(opt => {
+      let picked = false;
+      if (Array.isArray(ans)) picked = ans.includes(opt.v);
+      else picked = (ans === opt.v);
+      const mark = picked ? '✅' : '⬜';
+      md += `- ${mark} **${opt.v}**: ${opt.t}\n`;
+    });
+    md += `\n`;
+  });
+
+  if (preciseMode) {
+    md += `---\n\n`;
+    md += `## 第二部分 · 深度题（按基础题答案动态触发）\n\n`;
+    md += `这些题不是所有人都看到 —— 我在基础题里勾了某些选项后，才被触发的。\n\n`;
+    const triggered = filteredDeepQuestions(answers, codingLevel);
+    if (triggered.length === 0) {
+      md += `_（我的基础题答案没触发任何深度题。）_\n\n`;
+    } else {
+      triggered.forEach((q, i) => {
+        md += `### D${i+1}. ${q.text}  *(多选)*\n\n`;
+        md += `\`题号：${q.id}\`\n\n`;
+        const ans = deepAnswers[q.id];
+        q.options.forEach(opt => {
+          let picked = Array.isArray(ans) && ans.includes(opt.v);
+          const mark = picked ? '✅' : '⬜';
+          md += `- ${mark} **${opt.v}**: ${opt.t}\n`;
+        });
+        md += `\n`;
+      });
+    }
+  }
+
+  if (freetext) {
+    md += `---\n\n## 第三部分 · 自由描述\n\n`;
+    const topicMap = {
+      'A': '设计一个 AI 工具帮 Intent 解决"新用户进群没人理→流失"',
+      'B': '描述一次你用 AI 完成了一件事的经历。卡在哪里？怎么解决的？',
+      'C': '你最近想用 AI 学/做但还没下手的一件事。为什么没下手？'
+    };
+    md += `**选的话题**：${topic || '未选'}${topic && topicMap[topic] ? ' — ' + topicMap[topic] : ''}\n\n`;
+    md += `**我的回答**：\n\n${freetext}\n\n`;
+  }
+
+  md += `---\n\n## 第四部分 · 工具计算的分数\n\n`;
+  md += `这是 Intent 这个工具的预设算法算出来的分数 — 仅供参考，你可以从你的角度重新判断。\n\n`;
+  md += `**整体水平**：${toLevel(overall, preciseMode)}\n\n`;
+  md += `| 类别 | 水平 |\n|---|---|\n`;
+  CATEGORIES.forEach(cat => {
+    md += `| ${cat.name} | ${toLevel(cats[cat.key], preciseMode)} |\n`;
+  });
+
+  md += `\n---\n\n## 🎯 给 AI 的提示词模板\n\n`;
+  md += `把以上**全部内容**复制粘贴给 ChatGPT / Claude / 豆包 / 任何 AI，然后在末尾加你的具体需求，例如：\n\n`;
+  md += `\`\`\`\n`;
+  md += `请基于我上面的 AI 能力诊断答题记录，给我新的分析和建议。\n\n`;
+  md += `我特别想知道：\n`;
+  md += `- 我现在的水平做 [我的具体目标，如 "AI 产品经理 / 独立做 AI 副业 / 团队带 AI 项目"] 还差什么？\n`;
+  md += `- 我下一个 30 天最该补哪几个方向？给我可执行的清单。\n`;
+  md += `- 我可能高估 / 低估了自己的哪些能力？\n`;
+  md += `- 跟我同行业 / 同级别的人比，我处于什么位置？\n`;
+  md += `- Intent 这个工具的预设分析有什么盲区？从你的视角看我的真实水平是？\n`;
+  md += `\`\`\`\n\n`;
+  md += `> 不同 AI 看同一份数据会有不同的洞察。Intent 这个工具的画像是"预设模板"的结果，可能漏掉适合你的角度。`;
+
+  return md;
+}
+
+// ═══════════════════════════════════════════════════════
 // 提交 & 渲染结果
 // ═══════════════════════════════════════════════════════
 let currentMD = '';
+let currentRawMD = '';
 let currentName = '';
 let basicResult = null; // 保存基础结果，供 renderResult 用
 let preciseModeOn = false; // 是否做了深度题
@@ -2873,7 +3025,14 @@ function renderResult() {
     deepAnswers: state.deepAnswers || {}, preciseMode: preciseModeOn
   });
   currentName = name;
-  document.getElementById('mdPreview').textContent = currentMD;
+  document.getElementById('mdPreview').value = currentMD;
+
+  // 同时生成"完整答题记录"用于换个 AI 重新分析
+  currentRawMD = genRawRecord({
+    name, role, cats, overall, freetext, topic,
+    answers: state.answers, codingLevel: coding,
+    deepAnswers: state.deepAnswers || {}, preciseMode: preciseModeOn
+  });
 
   // 切换屏幕
   document.getElementById('questionnaire').style.display = 'none';
@@ -2887,7 +3046,9 @@ function renderResult() {
 }
 
 function downloadMD() {
-  const blob = new Blob([currentMD], { type: 'text/markdown;charset=utf-8' });
+  // 读 textarea 当前值（保留用户的编辑）
+  const md = document.getElementById('mdPreview').value || currentMD;
+  const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -2898,12 +3059,25 @@ function downloadMD() {
 }
 
 function copyMD() {
-  navigator.clipboard.writeText(currentMD).then(() => {
+  const md = document.getElementById('mdPreview').value || currentMD;
+  navigator.clipboard.writeText(md).then(() => {
     const btn = document.getElementById('copyBtn');
     const txt = btn.textContent;
     btn.textContent = '✓ 已复制';
     setTimeout(() => btn.textContent = txt, 1800);
   });
+}
+
+function downloadRawRecord() {
+  if (!currentRawMD) return;
+  const blob = new Blob([currentRawMD], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const date = new Date().toISOString().slice(0, 10);
+  a.download = `${currentName}_完整答题记录_${date}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 function restart() {
@@ -2975,6 +3149,7 @@ document.getElementById('submitDeepBtn').addEventListener('click', () => submit(
 document.getElementById('downloadBtn').addEventListener('click', downloadMD);
 document.getElementById('copyBtn').addEventListener('click', copyMD);
 document.getElementById('restartBtn').addEventListener('click', restart);
+document.getElementById('downloadRawBtn').addEventListener('click', downloadRawRecord);
 </script>
 
 </body>
